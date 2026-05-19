@@ -1,18 +1,20 @@
+import java.util.ArrayList;
+
 public class Middle {
-    private Card[] middleCards;
+    public ArrayList<Card> middleCards;
     int uncovertCarts = 0;
+
+    Middle(){
+    middleCards = new ArrayList<>();
+    }
 
     public void takeCards(Deck deck){
         for(int i=0; i<5; i++){
-            middleCards[i] = deck.getCards().get(i);
+            middleCards.add(deck.getCards().get(i));
             deck.getCards().remove(i);
         }
     }
-    public Card getUncovertCards(int index){ //gibt, wenn alle Karten aufgedeckt sind, die Karte zurück
-        Card card = null;
-        if(uncovertCarts==5){
-            card = middleCards[index];
-        }
-        return card;
+    public ArrayList<Card> getMiddleCards(){
+        return middleCards;
     }
 }
