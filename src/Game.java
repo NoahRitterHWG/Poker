@@ -6,6 +6,8 @@ public class Game {
 int numberOfPlayers;
 int activePlayerIndex = 0;
 public ArrayList<Player> players;
+ArrayList<Player> playersInRound;
+
 Game(){
     players = new ArrayList<Player>();
 }
@@ -55,19 +57,33 @@ public void startGame(){    //startet das Spiel, indem es alle wichtigen Informa
     }
 }
 public void startRound(){
+    ArrayList<Player> playersInRound = players;
 Deck deck = new Deck();
 deck.shuffledeck();
 Middle middle = new Middle();
 middle.takeCards(deck);
 for(int i=0; i<numberOfPlayers; i++){
-Player p = players.get(i);
-p.takeCards(deck);
+players.get(i).takeCards(deck);
+System.out.println(determinedWinner(middle));
 }
 // gui Fenster öffnet sich (Spieler an der Reihe, Geld, Geboten, Geboten von anderen, )
 // Spieler kommt an die Reihe (EInsatz + Kartensehen)
 // Nächte Karte wird aufgedeckt
 // Am Ende Sieger anzeigen
 
+}
+public Player determinedWinner(Middle middle){
+    
+    Player Winner = playersInRound.get(0);
+    for(int i = 1; i < playersInRound.size(); i++){
+        if(Winner.evaluate(middle.getMiddleCards()).getHandValue() < playersInRound.get(i).evaluate(middle.getMiddleCards()).getHandValue()){
+            Winner = playersInRound.get(i);
+        }
+        else if(Winner.evaluate(middle.getMiddleCards()).getHandValue() == playersInRound.get(i).evaluate(middle.getMiddleCards()).getHandValue() && players.get(i).winsTieBreak(Winner.getTiebrakValues(), playersInRound.get(i).getTiebrakValues())){
+            
+        }
+    }
+    return Winner;
 }
 
 public Integer askForValidInt(String message, int min, int max){    // Gibt eine gültige Zahl in Form eines Integers oder im Falle des Abbruchs null zurück.

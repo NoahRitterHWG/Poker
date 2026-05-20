@@ -2,7 +2,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Player {
+    ArrayList<Card> bestPosHand;
     ArrayList<Card> availableCards;
+    int[] lastTieBreakValue = {0,0,0,0,0};
     ArrayList<Card> possebleHand;
     PokerHand bestHand;
     int playerBalance = 10000;  //Geld des Spielers
@@ -30,6 +32,7 @@ public class Player {
    availableCards.addAll(comunityCards);
    availableCards.addAll(handCards);
    bestHand = PokerHand.HIGHCARD;                                
+   bestPosHand= new ArrayList<Card>();
    
    for (int i=0; i <= 6; i++){
       for (int j = i+1; j <= 6; j++){
@@ -38,34 +41,54 @@ public class Player {
          possebleHand.remove(j);
          possebleHand.remove(i);
          
-         if(isStraightFlush()){
+         if(isStraightFlush() && PokerHand.STRAIGHT_FLUSH.getHandValue() > bestHand.getHandValue() || isStraightFlush() && PokerHand.STRAIGHT_FLUSH.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.STRAIGHT_FLUSH;
+            lastTieBreakValue = getTiebrakValues();
          }
-         else if (isFourOfAKind() && PokerHand.FOUR_OF_A_KIND.getHandValue() > bestHand.getHandValue()){
+         else if (isFourOfAKind() && PokerHand.FOUR_OF_A_KIND.getHandValue() > bestHand.getHandValue() || isFourOfAKind() && PokerHand.FOUR_OF_A_KIND.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.FOUR_OF_A_KIND;
+            lastTieBreakValue = getTiebrakValues();
          }
-         else if (isFullHouse() && PokerHand.FULL_HOUSE.getHandValue() > bestHand.getHandValue()){
+         else if (isFullHouse() && PokerHand.FULL_HOUSE.getHandValue() > bestHand.getHandValue() || isFullHouse() && PokerHand.FULL_HOUSE.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.FULL_HOUSE;
+            lastTieBreakValue = getTiebrakValues();
          }
-         else if (isFlush() && PokerHand.FLUSH.getHandValue() > bestHand.getHandValue()){
+         else if (isFlush() && PokerHand.FLUSH.getHandValue() > bestHand.getHandValue() || isFlush() && PokerHand.FLUSH.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.FLUSH;
+            lastTieBreakValue = getTiebrakValues();
          }
-         else if (isStraight() && PokerHand.STRAIGHT.getHandValue() > bestHand.getHandValue()){
+         else if (isStraight() && PokerHand.STRAIGHT.getHandValue() > bestHand.getHandValue() || isStraight() && PokerHand.STRAIGHT.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.STRAIGHT;
+            lastTieBreakValue = getTiebrakValues();
          }
-         else if (isThreeOfAKind() && PokerHand.THREE_OF_A_KIND.getHandValue() > bestHand.getHandValue()){
+         else if (isThreeOfAKind() && PokerHand.THREE_OF_A_KIND.getHandValue() > bestHand.getHandValue() || isThreeOfAKind() && PokerHand.THREE_OF_A_KIND.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.THREE_OF_A_KIND;
+            lastTieBreakValue = getTiebrakValues();
          }
-         else if (isTwoPair() && PokerHand.TWO_PAIR.getHandValue() > bestHand.getHandValue()){
+         else if (isTwoPair() && PokerHand.TWO_PAIR.getHandValue() > bestHand.getHandValue() || isTwoPair() && PokerHand.TWO_PAIR.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.TWO_PAIR;
+            lastTieBreakValue = getTiebrakValues();
          }
-         else if (isOnePair() && PokerHand.ONE_PAIR.getHandValue() > bestHand.getHandValue()){
+         else if (isOnePair() && PokerHand.ONE_PAIR.getHandValue() > bestHand.getHandValue() || isOnePair() && PokerHand.ONE_PAIR.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.ONE_PAIR;
+            lastTieBreakValue = getTiebrakValues();
+         }
+         else if (winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+            lastTieBreakValue = getTiebrakValues();
          }
       }
    }
    return bestHand;
  }
+
+ public boolean winsTieBreak(int[] lastValue,int[] potNewBest){
+   for(int i=0; i < lastValue.length; i++){
+      if (lastValue[i] < potNewBest[i]){
+         return true;
+      }
+   }
+   return false;
+}
 
  public int[] getTiebrakValues(){
 
