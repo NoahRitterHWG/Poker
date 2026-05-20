@@ -29,9 +29,7 @@ public class Player {
    availableCards = new ArrayList<Card>();
    availableCards.addAll(comunityCards);
    availableCards.addAll(handCards);
-   bestHand = PokerHand.HIGHCARD;
-   System.out.println(availableCards);
-                                    
+   bestHand = PokerHand.HIGHCARD;                                
    
    for (int i=0; i <= 6; i++){
       for (int j = i+1; j <= 6; j++){

@@ -63,12 +63,11 @@ for(int i=0; i<numberOfPlayers; i++){
 Player p = players.get(i);
 p.takeCards(deck);
 }
+// gui Fenster öffnet sich (Spieler an der Reihe, Geld, Geboten, Geboten von anderen, )
+// Spieler kommt an die Reihe (EInsatz + Kartensehen)
+// Nächte Karte wird aufgedeckt
+// Am Ende Sieger anzeigen
 
-System.out.println(getPlayers().get(0).evaluate(middle.getMiddleCards()));
-
-System.out.println(getPlayers().get(1).evaluate(middle.getMiddleCards()));
-
-System.out.println(getPlayers().get(2).evaluate(middle.getMiddleCards()));
 }
 
 public Integer askForValidInt(String message, int min, int max){    // Gibt eine gültige Zahl in Form eines Integers oder im Falle des Abbruchs null zurück.
