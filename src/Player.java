@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Player {
-    ArrayList<Card> bestPosHand;
     ArrayList<Card> availableCards;
     int[] lastTieBreakValue = {0,0,0,0,0};
     ArrayList<Card> possebleHand;
@@ -18,8 +17,8 @@ public class Player {
     }
     public void takeCards(Deck deck){    //lässt die Spieler zwei zufällige Karten nehmen
         for(int i=0; i<2; i++){
-        handCards.add(deck.getCards().get(i));
-        deck.getCards().remove(i);
+        handCards.add(deck.getCards().get(0));
+        deck.getCards().remove(0);
         }
     }
     public Card getHandCard(int index){
@@ -31,13 +30,12 @@ public class Player {
    availableCards = new ArrayList<Card>();
    availableCards.addAll(comunityCards);
    availableCards.addAll(handCards);
-   bestHand = PokerHand.HIGHCARD;                                
-   bestPosHand= new ArrayList<Card>();
+   bestHand = PokerHand.HIGHCARD;              
+   possebleHand = new ArrayList<Card>();                  
    
-   for (int i=0; i < 7; i++){
+   for (int i=0; i < 6; i++){
       for (int j = i+1; j < 7; j++){
-
-         possebleHand = new ArrayList<Card>();
+         possebleHand.removeAll(possebleHand);
          possebleHand.addAll(availableCards);
          if(j<i){
             possebleHand.remove(i);
@@ -213,6 +211,7 @@ public class Player {
          possebleHand.get(4).getValue()
       };
    }
+   System.out.println("BlaaabLaaa");
    return null;
 }
 
@@ -262,7 +261,7 @@ public class Player {
  public boolean isStraight(){
    Collections.sort(possebleHand, (a, b) -> a.getValue() - b.getValue());
    if (possebleHand.size() != 5){
-      System.out.println("nene");
+      System.out.println(possebleHand.size());
       return false;
    }
    for (int i = 0; i < possebleHand.size()-1; i++){
