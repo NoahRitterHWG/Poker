@@ -34,12 +34,18 @@ public class Player {
    bestHand = PokerHand.HIGHCARD;                                
    bestPosHand= new ArrayList<Card>();
    
-   for (int i=0; i <= 6; i++){
-      for (int j = i+1; j <= 6; j++){
+   for (int i=0; i < 7; i++){
+      for (int j = i+1; j < 7; j++){
 
-         possebleHand = new ArrayList<Card>(availableCards);
+         possebleHand = new ArrayList<Card>();
+         possebleHand.addAll(availableCards);
+         if(j<i){
+            possebleHand.remove(i);
+            possebleHand.remove(j);
+         } else{
          possebleHand.remove(j);
          possebleHand.remove(i);
+         }
          
          if(isStraightFlush() && PokerHand.STRAIGHT_FLUSH.getHandValue() > bestHand.getHandValue() || isStraightFlush() && PokerHand.STRAIGHT_FLUSH.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
             bestHand = PokerHand.STRAIGHT_FLUSH;
@@ -255,6 +261,10 @@ public class Player {
 
  public boolean isStraight(){
    Collections.sort(possebleHand, (a, b) -> a.getValue() - b.getValue());
+   if (possebleHand.size() != 5){
+      System.out.println("nene");
+      return false;
+   }
    for (int i = 0; i < possebleHand.size()-1; i++){
       if (possebleHand.get(i).getValue() == possebleHand.get(i+1).getValue()){
          return false;

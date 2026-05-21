@@ -57,7 +57,7 @@ public void startGame(){    //startet das Spiel, indem es alle wichtigen Informa
     }
 }
 public void startRound(){
-    ArrayList<Player> playersInRound = players;
+playersInRound = players;
 Deck deck = new Deck();
 deck.shuffledeck();
 Middle middle = new Middle();
