@@ -79,7 +79,7 @@ public Player determinedWinner(Middle middle){
         if(Winner.evaluate(middle.getMiddleCards()).getHandValue() < playersInRound.get(i).evaluate(middle.getMiddleCards()).getHandValue()){
             Winner = playersInRound.get(i);
         }
-        else if(Winner.evaluate(middle.getMiddleCards()).getHandValue() == playersInRound.get(i).evaluate(middle.getMiddleCards()).getHandValue() && players.get(i).winsTieBreak(Winner.getTiebrakValues(), playersInRound.get(i).getTiebrakValues())){
+        else if(Winner.evaluate(middle.getMiddleCards()).getHandValue() == playersInRound.get(i).evaluate(middle.getMiddleCards()).getHandValue() && players.get(i).winsTieBreak(Winner.lastTieBreakValue, playersInRound.get(i).lastTieBreakValue)){
             
         }
     }

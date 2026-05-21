@@ -97,6 +97,7 @@ public class Player {
  public int[] getTiebrakValues(){
 
    if (bestHand ==  PokerHand.STRAIGHT_FLUSH){
+      System.out.println("1funktioniert");
       if (possebleHand.get(4).getValue() == 14 && possebleHand.get(3).getValue() == 5) {
          return new int[] { 5 };
       } else {
@@ -104,9 +105,10 @@ public class Player {
       }
    }
    else if (bestHand ==  PokerHand.FOUR_OF_A_KIND){
-      for (int i = 0; i < possebleHand.size(); i++) {
+      System.out.println("2funktioniert");
+      for (int i = 0; i < 5; i++) {
          int count = 0;
-         for (int j = 0; j < possebleHand.size(); j++) {
+         for (int j = 0; j < 5; j++) {
             if (possebleHand.get(j).getValue() == possebleHand.get(i).getValue()) {
                count += 1;
             }
@@ -115,8 +117,9 @@ public class Player {
             return new int[]{possebleHand.get(i).getValue()};
          }
       }
-   }
+      }
    else if (bestHand ==  PokerHand.FULL_HOUSE){
+      System.out.println("3funktioniert");
       for (int i = 0; i < possebleHand.size(); i++) {
          int count = 0;
          for (int j = 0; j < possebleHand.size(); j++) {
@@ -140,9 +143,11 @@ public class Player {
       }
    }
    else if (bestHand ==  PokerHand.FLUSH){
+      System.out.println("4funktioniert");
       return new int[] {possebleHand.get(4).getValue()};
    }
    else if (bestHand ==  PokerHand.STRAIGHT){
+      System.out.println("5funktioniert");
       if (possebleHand.get(4).getValue() == 14 && possebleHand.get(3).getValue() == 5) {
          return new int[] { 5 };
       } else {
@@ -150,6 +155,7 @@ public class Player {
       }
    }
    else if (bestHand ==  PokerHand.THREE_OF_A_KIND){
+      System.out.println("6funktioniert");
       for (int i = 0; i < possebleHand.size(); i++) {
          int count = 0;
          for (int j = 0; j < possebleHand.size(); j++) {
@@ -163,6 +169,7 @@ public class Player {
       }
    }
    else if (bestHand ==  PokerHand.TWO_PAIR){
+      System.out.println("7funktioniert");
       for (int i = 0; i < possebleHand.size(); i++) {
          int count = 0;
          for (int j = 0; j < possebleHand.size(); j++) {
@@ -187,8 +194,10 @@ public class Player {
             }
          }
       }
+      System.out.println("Falsche Schleife");
    }
    else if (bestHand ==  PokerHand.ONE_PAIR){
+      System.out.println("8funktioniert");
       for (int i = 0; i < possebleHand.size(); i++) {
          int count = 0;
          for (int j = 0; j < possebleHand.size(); j++) {
@@ -200,8 +209,10 @@ public class Player {
             return new int[] { possebleHand.get(i).getValue() };
          }
       }
+      System.out.println("Falsche Schleife");
    }
    else if (bestHand ==  PokerHand.HIGHCARD){
+      System.out.println("9funktioniert");
       Collections.sort(possebleHand, (b, a) -> b.getValue() - a.getValue());
       return new int[] {
          possebleHand.get(0).getValue(),
