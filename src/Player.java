@@ -2,12 +2,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Player {
-    ArrayList<Card> availableCards;
+    
     int[] lastTieBreakValue = {0,0,0,0,0};
-    ArrayList<Card> possebleHand;
-    PokerHand bestHand;
+    
+    
     int playerBalance = 10000;  //Geld des Spielers
-    private ArrayList<Card> handCards;
+   ArrayList<Card> handCards;
     int id;
     String name;
     Player(String name, int id) {   //Konstruktor
@@ -19,6 +19,7 @@ public class Player {
         for(int i=0; i<2; i++){
         handCards.add(deck.getCards().get(0));
         deck.getCards().remove(0);
+        System.out.println("PlayerKArten:"+ handCards.size());
         }
     }
     public Card getHandCard(int index){
@@ -26,17 +27,21 @@ public class Player {
         return card;
     }
 
-    public PokerHand evaluate(ArrayList<Card> comunityCards){              
+   public PokerHand evaluate(ArrayList<Card> comunityCards, ArrayList<Card> handCards){   
+   ArrayList<Card> availableCards;           
    availableCards = new ArrayList<Card>();
+   PokerHand bestHand;
    availableCards.addAll(comunityCards);
    availableCards.addAll(handCards);
+   ArrayList<Card> possebleHand;
    bestHand = PokerHand.HIGHCARD;              
    possebleHand = new ArrayList<Card>();                  
    
    for (int i=0; i < 6; i++){
       for (int j = i+1; j < 7; j++){
-         possebleHand.removeAll(possebleHand);
+         possebleHand.clear();
          possebleHand.addAll(availableCards);
+         System.out.println("possCards:"+possebleHand.size());
          if(j<i){
             possebleHand.remove(i);
             possebleHand.remove(j);
@@ -45,40 +50,40 @@ public class Player {
          possebleHand.remove(i);
          }
          
-         if(isStraightFlush() && PokerHand.STRAIGHT_FLUSH.getHandValue() > bestHand.getHandValue() || isStraightFlush() && PokerHand.STRAIGHT_FLUSH.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         if(isStraightFlush(possebleHand) && PokerHand.STRAIGHT_FLUSH.getHandValue() > bestHand.getHandValue() || isStraightFlush(possebleHand) && PokerHand.STRAIGHT_FLUSH.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.STRAIGHT_FLUSH;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (isFourOfAKind() && PokerHand.FOUR_OF_A_KIND.getHandValue() > bestHand.getHandValue() || isFourOfAKind() && PokerHand.FOUR_OF_A_KIND.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         else if (isFourOfAKind(possebleHand) && PokerHand.FOUR_OF_A_KIND.getHandValue() > bestHand.getHandValue() || isFourOfAKind(possebleHand) && PokerHand.FOUR_OF_A_KIND.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.FOUR_OF_A_KIND;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (isFullHouse() && PokerHand.FULL_HOUSE.getHandValue() > bestHand.getHandValue() || isFullHouse() && PokerHand.FULL_HOUSE.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         else if (isFullHouse(possebleHand) && PokerHand.FULL_HOUSE.getHandValue() > bestHand.getHandValue() || isFullHouse(possebleHand) && PokerHand.FULL_HOUSE.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.FULL_HOUSE;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (isFlush() && PokerHand.FLUSH.getHandValue() > bestHand.getHandValue() || isFlush() && PokerHand.FLUSH.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         else if (isFlush(possebleHand) && PokerHand.FLUSH.getHandValue() > bestHand.getHandValue() || isFlush(possebleHand) && PokerHand.FLUSH.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.FLUSH;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (isStraight() && PokerHand.STRAIGHT.getHandValue() > bestHand.getHandValue() || isStraight() && PokerHand.STRAIGHT.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         else if (isStraight(possebleHand) && PokerHand.STRAIGHT.getHandValue() > bestHand.getHandValue() || isStraight(possebleHand) && PokerHand.STRAIGHT.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.STRAIGHT;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (isThreeOfAKind() && PokerHand.THREE_OF_A_KIND.getHandValue() > bestHand.getHandValue() || isThreeOfAKind() && PokerHand.THREE_OF_A_KIND.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         else if (isThreeOfAKind(possebleHand) && PokerHand.THREE_OF_A_KIND.getHandValue() > bestHand.getHandValue() || isThreeOfAKind(possebleHand) && PokerHand.THREE_OF_A_KIND.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.THREE_OF_A_KIND;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (isTwoPair() && PokerHand.TWO_PAIR.getHandValue() > bestHand.getHandValue() || isTwoPair() && PokerHand.TWO_PAIR.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         else if (isTwoPair(possebleHand) && PokerHand.TWO_PAIR.getHandValue() > bestHand.getHandValue() || isTwoPair(possebleHand) && PokerHand.TWO_PAIR.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.TWO_PAIR;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (isOnePair() && PokerHand.ONE_PAIR.getHandValue() > bestHand.getHandValue() || isOnePair() && PokerHand.ONE_PAIR.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues())){
+         else if (isOnePair(possebleHand) && PokerHand.ONE_PAIR.getHandValue() > bestHand.getHandValue() || isOnePair(possebleHand) && PokerHand.ONE_PAIR.getHandValue() == bestHand.getHandValue() && winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
             bestHand = PokerHand.ONE_PAIR;
-            lastTieBreakValue = getTiebrakValues();
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
-         else if (winsTieBreak(lastTieBreakValue, getTiebrakValues())){
-            lastTieBreakValue = getTiebrakValues();
+         else if (winsTieBreak(lastTieBreakValue, getTiebrakValues(possebleHand,bestHand))){
+            lastTieBreakValue = getTiebrakValues(possebleHand,bestHand);
          }
       }
    }
@@ -89,12 +94,14 @@ public class Player {
    for(int i=0; i < lastValue.length; i++){
       if (lastValue[i] < potNewBest[i]){
          return true;
+      } else if (lastValue[i]>potNewBest[i]){
+         return false;
       }
    }
    return false;
 }
 
- public int[] getTiebrakValues(){
+ public int[] getTiebrakValues(ArrayList<Card> possebleHand, PokerHand bestHand){
 
    if (bestHand ==  PokerHand.STRAIGHT_FLUSH){
       System.out.println("1funktioniert");
@@ -198,18 +205,19 @@ public class Player {
    }
    else if (bestHand ==  PokerHand.ONE_PAIR){
       System.out.println("8funktioniert");
-      for (int i = 0; i < possebleHand.size(); i++) {
+      for (int i = 0; i < 4; i++) {
          int count = 0;
-         for (int j = 0; j < possebleHand.size(); j++) {
+         for (int j = i+1; j < 5; j++) {
             if (possebleHand.get(j).getValue() == possebleHand.get(i).getValue()) {
                count += 1;
             }
          }
-         if (count == 2) {
+         if (count <= 1) {
             return new int[] { possebleHand.get(i).getValue() };
          }
+         System.out.println("Falsche Schleife"+ count);
       }
-      System.out.println("Falsche Schleife");
+      
    }
    else if (bestHand ==  PokerHand.HIGHCARD){
       System.out.println("9funktioniert");
@@ -226,15 +234,15 @@ public class Player {
    return null;
 }
 
- public boolean isStraightFlush(){
-   return(isStraight()  && isFlush());
+ public boolean isStraightFlush(ArrayList<Card> possebleHand){
+   return(isStraight(possebleHand)  && isFlush(possebleHand));
  }
 
- public boolean isFourOfAKind(){
-   return hasNOfAKind(4);
+ public boolean isFourOfAKind(ArrayList<Card> possebleHand){
+   return hasNOfAKind(4, possebleHand);
  }
 
- public boolean isFullHouse() {
+ public boolean isFullHouse(ArrayList<Card> possebleHand) {
     for (int i = 0; i < possebleHand.size(); i++) {
        int count = 0;
        for (int j = 0; j < possebleHand.size(); j++) {
@@ -259,7 +267,7 @@ public class Player {
     return false;
  }
 
- public boolean isFlush(){
+ public boolean isFlush(ArrayList<Card> possebleHand){
    CardType cardtype = possebleHand.get(0).type; 
    for (int i = 0; i < possebleHand.size(); i++){
       if (cardtype != possebleHand.get(i).type){
@@ -269,12 +277,8 @@ public class Player {
    return true;
  }
 
- public boolean isStraight(){
+ public boolean isStraight(ArrayList<Card> possebleHand){
    Collections.sort(possebleHand, (a, b) -> a.getValue() - b.getValue());
-   if (possebleHand.size() != 5){
-      System.out.println(possebleHand.size());
-      return false;
-   }
    for (int i = 0; i < possebleHand.size()-1; i++){
       if (possebleHand.get(i).getValue() == possebleHand.get(i+1).getValue()){
          return false;
@@ -284,11 +288,11 @@ public class Player {
    return ((possebleHand.get(4).getValue() - possebleHand.get(0).getValue() == 4 )|| (possebleHand.get(4).getValue() == 14 && possebleHand.get(3).getValue() == 5));
  }
 
- public boolean isThreeOfAKind() {
-   return hasNOfAKind(3);
+ public boolean isThreeOfAKind(ArrayList<Card> possebleHand) {
+   return hasNOfAKind(3, possebleHand);
  }
 
- public boolean isTwoPair() {
+ public boolean isTwoPair(ArrayList<Card> possebleHand) {
     for (int i = 0; i < possebleHand.size(); i++) {
        int count = 0;
        for (int j = 0; j < possebleHand.size(); j++) {
@@ -313,11 +317,11 @@ public class Player {
     return false;
  }
  
- public boolean isOnePair() {
-   return hasNOfAKind(2);
+ public boolean isOnePair(ArrayList<Card> possebleHand) {
+   return hasNOfAKind(2,possebleHand);
  }
 
- public boolean hasNOfAKind(int n){
+ public boolean hasNOfAKind(int n,ArrayList<Card> possebleHand){
    for (int i = 0; i < possebleHand.size(); i++) {
       int count = 0;
       for (int j = 0; j < possebleHand.size(); j++) {

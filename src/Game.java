@@ -76,10 +76,10 @@ public Player determinedWinner(Middle middle){
     
     Player Winner = playersInRound.get(0);
     for(int i = 1; i < playersInRound.size(); i++){
-        if(Winner.evaluate(middle.getMiddleCards()).getHandValue() < playersInRound.get(i).evaluate(middle.getMiddleCards()).getHandValue()){
+        if(Winner.evaluate(middle.getMiddleCards(), Winner.handCards).getHandValue() < playersInRound.get(i).evaluate(middle.getMiddleCards(), playersInRound.get(i).handCards).getHandValue()){
             Winner = playersInRound.get(i);
         }
-        else if(Winner.evaluate(middle.getMiddleCards()).getHandValue() == playersInRound.get(i).evaluate(middle.getMiddleCards()).getHandValue() && players.get(i).winsTieBreak(Winner.lastTieBreakValue, playersInRound.get(i).lastTieBreakValue)){
+        else if(Winner.evaluate(middle.getMiddleCards(), Winner.handCards).getHandValue() == playersInRound.get(i).evaluate(middle.getMiddleCards(), playersInRound.get(i).handCards).getHandValue() && players.get(i).winsTieBreak(Winner.lastTieBreakValue, playersInRound.get(i).lastTieBreakValue)){
             
         }
     }
