@@ -177,22 +177,22 @@ public class Player {
    }
    else if (bestHand ==  PokerHand.TWO_PAIR){
       System.out.println("7funktioniert");
-      for (int i = 0; i < possebleHand.size(); i++) {
+      for (int i = 0; i < 4; i++) {
          int count = 0;
-         for (int j = 0; j < possebleHand.size(); j++) {
+         for (int j = i+1; j < 5; j++) {
             if (possebleHand.get(j).getValue() == possebleHand.get(i).getValue()) {
                count += 1;
             }
          }
-         if (count == 2) {
-            for (int k = 0; k < possebleHand.size(); k++) {
+         if (count == 1) {
+            for (int k = 0; k < 4; k++) {
                count = 0;
-               for (int l = 0; l < possebleHand.size(); l++) {
+               for (int l = i+1; l < 5; l++) {
                   if (possebleHand.get(k).getValue() == possebleHand.get(l).getValue()) {
                      count += 1;
                   }
                }
-               if (count == 2 && possebleHand.get(i).getValue() != possebleHand.get(k).getValue()) {
+               if (count == 1 && possebleHand.get(i).getValue() != possebleHand.get(k).getValue()) {
                   for (int m = 0; m < possebleHand.size(); m++){
                      if (possebleHand.get(m).getValue() != possebleHand.get(i).getValue() && possebleHand.get(m).getValue() != possebleHand.get(k).getValue())
                         return new int[] { possebleHand.get(i).getValue(), possebleHand.get(k).getValue(), possebleHand.get(m).getValue()};
