@@ -67,7 +67,7 @@ public class Game {
     public Player determinedWinner(Middle middle) {
         Player winner = playersInRound.get(0);
                                                                         
-        winner.evaluate(middle.getMiddleCards());                                       // Beste Hand des ersten Spielers auswerten
+        winner.evaluate(middle.getMiddleCards());                                       // evaluate best hand of first player
 
         for (int i = 1; i < playersInRound.size(); i++) {
             Player playerToEvaluate = playersInRound.get(i);
