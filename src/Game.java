@@ -1,154 +1,117 @@
 import java.util.ArrayList;
-
 import javax.swing.JOptionPane;
-
 
 public class Game {
 
+    int numberOfPlayers;
+    int activePlayerIndex = 0;
+    public ArrayList<Player> players;
+    ArrayList<Player> playersInRound;
+
     Game() {
-        Gui = new GameGUI(this);
-        startGame();
-        Gui.updatePlayerLabel();
-        betTurn();
-        dealCards();
-        Gui.updateDealerCards(dealer);
-        Gui.updateActivePlayerCards(players.get(activePlayerIndex));
-        
+        players = new ArrayList<Player>();
     }
 
-    GameGUI Gui;
-    Deck cards = new Deck();
-    Dealer dealer;
-    ArrayList<Player> players;
-    ArrayList<Player> stoppedPlaying;
-    ArrayList<Card> comuniyCards;
-    int activePlayerIndex = 0;
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
 
     public void startGame() {
-        this.dealer = new Dealer();
-        players = new ArrayList<Player>();
-        int numbplayers = getValidInt("How many players are there? (1-5)", 1,5);
-        int i = 0;
-        while (i < numbplayers){
-            int j = i+1;
-            String name = JOptionPane.showInputDialog("Player " +j+", what is your name?");
-            if (name != null){
-                players.add(new Player(name));
-                i++;
+        Integer numberOfPlayersInteger = askForValidInt("Wie viele Spieler sollen teilnehmen? (2-10)", 2, 10);
+        if (numberOfPlayersInteger == null) {
+            System.exit(0);
+        }
+        numberOfPlayers = numberOfPlayersInteger;
+        String uebersichtPlayers = "Die Spieler: ";
+        for (int i = 0; i < numberOfPlayers; i++) {
+            String playerName = JOptionPane.showInputDialog(
+                    null,
+                    "Spieler " + (i + 1) + ", wie ist dein Name?");
+            if (playerName == null) {
+                players.clear();
+                this.startGame();
+                return;
             }
-            else{
-                int confirm = JOptionPane.showConfirmDialog(null, "Do you realy want to end the game?");
-                if(confirm == JOptionPane.YES_OPTION){
-                        System.exit(0);
-                    }
-                    else{
-                        continue;
-                    }
+            Player player = new Player(playerName, i);
+            players.add(player);
+            uebersichtPlayers += player.name;
+            if (i != numberOfPlayers - 1) {
+                uebersichtPlayers += ", ";
+            }
+        }
+        int antwort = JOptionPane.showConfirmDialog(
+                null,
+                uebersichtPlayers,
+                "Kontrolle",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (antwort == JOptionPane.CANCEL_OPTION) {
+            players.clear();
+            startGame();
+        } else if (antwort == JOptionPane.OK_OPTION) {
+            startRound();
+        }
+    }
+
+    public void startRound() {
+        playersInRound = new ArrayList<>(players);
+        Deck deck = new Deck();
+        deck.shuffledeck();
+        Middle middle = new Middle();
+        middle.takeCards(deck);
+        for (int i = 0; i < numberOfPlayers; i++) {
+            players.get(i).takeCards(deck);
+        }
+        System.out.println(determinedWinner(middle).name);
+    }
+
+    public Player determinedWinner(Middle middle) {
+        Player winner = playersInRound.get(0);
+                                                                        
+        winner.evaluate(middle.getMiddleCards());                                       // Beste Hand des ersten Spielers auswerten
+
+        for (int i = 1; i < playersInRound.size(); i++) {
+            Player playerToEvaluate = playersInRound.get(i);
+            playerToEvaluate.evaluate(middle.getMiddleCards());
+
+            int winnerHandValue = winner.evaluate(middle.getMiddleCards()).getHandValue();
+            int currentHandValue = playerToEvaluate.evaluate(middle.getMiddleCards()).getHandValue();
+
+            if (currentHandValue > winnerHandValue) {
+                winner = playerToEvaluate;
+            } else if (currentHandValue == winnerHandValue) {
+                int[] winnerTiebreak = winner.getTiebreakValues();
+                int[] playerToEvaluateTiebreak = playerToEvaluate.getTiebreakValues();
+                if (playerToEvaluate.winsTiebreak(winnerTiebreak, playerToEvaluateTiebreak)) {
+                    winner = playerToEvaluate;
                 }
-        }
-    }
-
-    public void betTurn() {
-        for (int i = 0; i < players.size(); i++) {
-            int bet = getValidInt(players.get(i).name + ", your balance is: " + players.get(i).playerBalance + "€\nHow much do you want to bet?", 1, players.get(i).playerBalance);
-            players.get(i).bet(bet); 
-        }
-    }
-
-    public void dealCards() {
-        cards.shuffledeck();
-        for (int i = 0; i < players.size(); i++) {
-            players.get(i).hit(cards.deal());
-            players.get(i).hit(cards.deal());
-        }
-        dealer.hit(cards.deal());
-        dealer.hit(cards.deal());
-        Gui.dealerHideCard = true;
-    }
-
-    public void dealerTurn() {
-        Gui.dealerHideCard = false;
-        Gui.updateDealerCards(dealer);
-        while (dealer.shouldHit()) {
-            dealer.hit(cards.deal());
-            Gui.updateDealerCards(dealer);
-        }
-    }
-
-    public void determineWinner() {
-        stoppedPlaying = new ArrayList<Player>();
-        for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).hand.getTotalHandValue() > 21) {
-                JOptionPane.showMessageDialog(null, players.get(i).name+", you lose "+ players.get(i).bet+"$ since you went over 21.\n Your balance now is: "+players.get(i).playerBalance+"$");
-                
-            } 
-            else if (dealer.hand.getTotalHandValue() > 21) {
-                players.get(i).playerBalance += players.get(i).bet * 2;
-                JOptionPane.showMessageDialog(null, players.get(i).name + ", you win " + players.get(i).bet + "$ since the dealer went over 21.\n Your balance now is: " + players.get(i).playerBalance + "$");
-            } 
-            else if (dealer.hand.getTotalHandValue() > players.get(i).hand.getTotalHandValue()) {
-                JOptionPane.showMessageDialog(null, players.get(i).name + ", you lose " + players.get(i).bet + "$ since the dealer beat you.\n Your balance now is: " + players.get(i).playerBalance + "$");
-            } 
-            else if (players.get(i).hand.getTotalHandValue() == 21 && players.get(i).hand.handCards.size() == 2) {
-                players.get(i).playerBalance += (int) (players.get(i).bet * 2.5);
-                JOptionPane.showMessageDialog(null, "Congrats "+players.get(i).name+", you got a BlackJack!\n You win "+ players.get(i).bet*2 +"$\n Your balance now is: " + players.get(i).playerBalance + "$");
-            } 
-            else if (dealer.hand.getTotalHandValue() < players.get(i).hand.getTotalHandValue()) {
-                players.get(i).playerBalance += players.get(i).bet * 2;
-                JOptionPane.showMessageDialog(null, players.get(i).name + ", you win " + players.get(i).bet + "$ since you beat the dealer.\n Your balance now is: " + players.get(i).playerBalance + "$");
-            } 
-            else {
-                players.get(i).playerBalance += players.get(i).bet;
-                JOptionPane.showMessageDialog(null, players.get(i).name + ", you tied the dealer! \n Your balance now is: " + players.get(i).playerBalance + "$");
-            }
-            if (players.get(i).playerBalance < 1){
-                JOptionPane.showMessageDialog(null, "You've ran out of money! \n Thanks for playing!");
-                stoppedPlaying.add(players.get(i));
-            }
-            else{
-            int continueplaying = JOptionPane.showConfirmDialog(null, "Do you want to continue playing?");
-            if(continueplaying != JOptionPane.YES_OPTION){
-                stoppedPlaying.add(players.get(i));
-                JOptionPane.showMessageDialog(null, "Thanks for playing!");
-            }
             }
         }
+        return winner;
     }
 
-    public void resetRound() {
-        players.removeAll(stoppedPlaying);
-        for (int i = 0; i < players.size(); i++) {
-            players.get(i).bet = 0;
-            players.get(i).hand.handCards.clear();
-        }
-        dealer.hand.handCards.clear();
-        cards = new Deck();
-    }
-    
-    public int getValidInt(String message, int min, int max) {
+    public Integer askForValidInt(String message, int min, int max) {
         while (true) {
+            String value = JOptionPane.showInputDialog(null, message);
+            if (value == null) {
+                return null;
+            }
             try {
-                String input = JOptionPane.showInputDialog(message);
-                if(input != null){
-                    int value = Integer.parseInt(input);
-                    if (value >= min && value <= max){
-                        return value;
-                    }
-                    JOptionPane.showMessageDialog(null, "Please enter a number between " + min + " and " + max);
+                int parsed = Integer.parseInt(value);
+                if (parsed <= max && parsed >= min) {
+                    return parsed;
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Ungültige Eingabe. Bitte geben Sie eine Zahl zwischen " + min + " und " + max + " ein.",
+                            "Fehler",
+                            JOptionPane.ERROR_MESSAGE);
                 }
-                else {
-                    int confirm = JOptionPane.showConfirmDialog(null, "Do you realy want to end the game?");
-
-                    if(confirm == JOptionPane.YES_OPTION){
-                        System.exit(0);
-                    }
-                    else{
-                        continue;
-                    }
-                }
-
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number!");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Ungültige Eingabe. Bitte geben Sie eine Zahl ein.",
+                        "Fehler",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }

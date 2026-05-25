@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Deck {
-    ArrayList<Card> cards;
+    public ArrayList<Card> cards;
     Deck(){
     cards = new ArrayList<Card>();
 
@@ -15,6 +15,9 @@ public class Deck {
 
         }
     }
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
     public void shuffledeck(){
     Random random = new Random();
     for (int i = 0; i < cards.size(); i++){
@@ -24,11 +27,6 @@ public class Deck {
         cards.set(i, randomCard);
         cards.set(j, currentCard);
         }
-    }
-    public Card deal(){
-        Card dealtCard = cards.get(cards.size()-1);
-        cards.remove(dealtCard);
-        return dealtCard;
     }
 }
 
