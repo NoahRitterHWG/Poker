@@ -10,8 +10,9 @@ public class Middle {
 
     public void takeCards(Deck deck){
         for(int i=0; i<5; i++){
-            middleCards.add(deck.getCards().get(i));
-            deck.getCards().remove(i);
+            middleCards.add(deck.getCards().get(0));
+            deck.getCards().remove(0);
+            System.out.println("Middle:"+middleCards.size());
         }
     }
     public ArrayList<Card> getMiddleCards(){

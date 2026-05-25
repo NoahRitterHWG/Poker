@@ -24,9 +24,7 @@ public class Game {
         numberOfPlayers = numberOfPlayersInteger;
         String uebersichtPlayers = "Die Spieler: ";
         for (int i = 0; i < numberOfPlayers; i++) {
-            String playerName = JOptionPane.showInputDialog(
-                    null,
-                    "Spieler " + (i + 1) + ", wie ist dein Name?");
+            String playerName = JOptionPane.showInputDialog(null,"Spieler " + (i + 1) + ", wie ist dein Name?");
             if (playerName == null) {
                 players.clear();
                 this.startGame();
@@ -39,11 +37,7 @@ public class Game {
                 uebersichtPlayers += ", ";
             }
         }
-        int antwort = JOptionPane.showConfirmDialog(
-                null,
-                uebersichtPlayers,
-                "Kontrolle",
-                JOptionPane.OK_CANCEL_OPTION);
+        int antwort = JOptionPane.showConfirmDialog(null,uebersichtPlayers,"Kontrolle",JOptionPane.OK_CANCEL_OPTION);
         if (antwort == JOptionPane.CANCEL_OPTION) {
             players.clear();
             startGame();
@@ -66,8 +60,8 @@ public class Game {
 
     public Player determinedWinner(Middle middle) {
         Player winner = playersInRound.get(0);
-                                                                        
-        winner.evaluate(middle.getMiddleCards());                                       // evaluate best hand of first player
+
+        winner.evaluate(middle.getMiddleCards()); // evaluate best hand of first player
 
         for (int i = 1; i < playersInRound.size(); i++) {
             Player playerToEvaluate = playersInRound.get(i);
@@ -99,19 +93,10 @@ public class Game {
                 int parsed = Integer.parseInt(value);
                 if (parsed <= max && parsed >= min) {
                     return parsed;
-                } else {
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Ungültige Eingabe. Bitte geben Sie eine Zahl zwischen " + min + " und " + max + " ein.",
-                            "Fehler",
-                            JOptionPane.ERROR_MESSAGE);
+                } else {JOptionPane.showMessageDialog(null,"Ungültige Eingabe. Bitte geben Sie eine Zahl zwischen " + min + " und " + max + " ein.","Fehler",JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Ungültige Eingabe. Bitte geben Sie eine Zahl ein.",
-                        "Fehler",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,"Ungültige Eingabe. Bitte geben Sie eine Zahl ein.","Fehler",JOptionPane.ERROR_MESSAGE);
             }
         }
     }
