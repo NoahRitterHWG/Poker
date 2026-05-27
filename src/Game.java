@@ -2,11 +2,14 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class Game {
-
+    int highestRoundBet;
     int numberOfPlayers;
     int activePlayerIndex = 0;
+    int smallBlindIndex = 0;
+    int bigBlindIndex = 1;
     public ArrayList<Player> players;
     ArrayList<Player> playersInRound;
+    Middle middle;
 
     Game() {
         players = new ArrayList<Player>();
@@ -47,6 +50,7 @@ public class Game {
     }
 
     public void startRound() {
+        highestRoundBet = 0;
         playersInRound = new ArrayList<>(players);
         Deck deck = new Deck();
         deck.shuffledeck();
@@ -55,8 +59,43 @@ public class Game {
         for (int i = 0; i < numberOfPlayers; i++) {
             players.get(i).takeCards(deck);
         }
-        System.out.println(determinedWinner(middle).name);
+        betRound();
+        middle.revealCard(3);
+        betRound();
+        middle.revealCard(1);
+        betRound();
+        middle.revealCard(1);
+        betRound();
+        showdown();
     }
+
+    public void showdown(){
+        for (Player p:playersInRound){
+            JOptionPane.showConfirmDialog(null, p.name + "has a "+ p.bestHand);
+        }
+        Player p = determinedWinner(middle);
+        JOptionPane.showConfirmDialog(null, p.name + "wins $"+middle.gamePott);
+    }
+
+    public void betRound(){
+        main: while(true){
+        for(Player p:playersInRound){
+            if (p.roundBet != highestRoundBet){
+            //ask for fould/Check/Raise roundBet = 0/highestRoundBet/int n
+                if(p.roundBet >= highestRoundBet){
+                    highestRoundBet = p.roundBet;
+                }
+                else{
+                    playersInRound.remove(p);
+                }
+            }
+            else{
+                break main;
+            }
+        }
+    }
+    }
+    
 
     public Player determinedWinner(Middle middle) {
         Player winner = playersInRound.get(0);
