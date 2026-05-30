@@ -12,12 +12,14 @@ public class Player {
    PokerHand bestHand;
    int playerBalance = 10000;
    int id;
+   int roundBet;
    String name;
 
    Player(String name, int id) {
       this.name = name;
       this.id = id;
       handCards = new ArrayList<Card>();
+      this.roundBet = 0;
    }
 
    public void takeCards(Deck deck) { // adds 2 cards from the deck to the players hand and removes them from the deck
