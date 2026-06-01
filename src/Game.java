@@ -117,6 +117,7 @@ public class Game {
         }
         for (Player p : playersInRound){
             p.roundBet = 0;
+            p.hasChecked = false;
         }
         currentTargetBet = 0;
     }
@@ -160,15 +161,7 @@ public class Game {
 
         String[] options = { "Fold", "Call", "Raise" };
 
-        int choice = JOptionPane.showOptionDialog(
-                null,
-                player.name + "'s turn",
-                "Action",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.INFORMATION_MESSAGE,
-                null,
-                options,
-                options[1]);
+        int choice = JOptionPane.showOptionDialog(null,player.name + "'s turn","Action",JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null, options, options[1]);
 
         switch (choice) {
 
@@ -180,10 +173,7 @@ public class Game {
 
             case 2:
 
-                int raiseTo = askForValidInt(
-                        "Raise to how much?",
-                        currentTargetBet + 1,
-                        player.playerBalance + player.roundBet);
+                int raiseTo = askForValidInt("Raise to how much?",currentTargetBet + 1, player.playerBalance + player.roundBet);
 
                 return new PlayerMove(PlayerAction.RAISE, raiseTo);
 
