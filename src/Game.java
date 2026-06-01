@@ -66,8 +66,15 @@ public class Game {
         for (int i = 0; i < numberOfPlayers; i++) {
             players.get(i).takeCards(deck);
         }
+        players.get(smallBlindIndex).playerBalance -= 100;
+        players.get(smallBlindIndex).roundBet = 100;
+        middle.gamePott += 100;
+
+        players.get(bigBlindIndex).playerBalance -= 200;
+        players.get(bigBlindIndex).roundBet = 200;
+        middle.gamePott += 200;
         players.get(bigBlindIndex).isBigBlind = true;
-        players.get(smallBlindIndex).isSmallBlind = true;
+
         betRound();
         middle.revealCard(3);
         betRound();
@@ -93,22 +100,13 @@ public class Game {
             removeFromRound = new ArrayList<>();
             for(Player p:playersInRound){
                 if (p.isBigBlind){
-                    // ask for fould/Check/Raise roundBet = 0/highestRoundBet/int n
-                    if (p.roundBet >= currentTargetBet) {
-                        currentTargetBet = p.roundBet;
-                    } else {
-                        removeFromRound.add(p);
-                    }
+                    PlayerMove move = askPlayerMove(p);
+                    handleAction(p, move);
                     p.isBigBlind = false;
                 }
-                else if (p.roundBet != currentTargetBet){
-                //ask for fould/Check/Raise roundBet = 0/highestRoundBet/int n
-                    if(p.roundBet >= currentTargetBet){
-                        currentTargetBet = p.roundBet;
-                    }
-                    else{
-                        removeFromRound.add(p);
-                    }
+                else if (!p.isLastRaiser && !p.hasChecked){
+                    PlayerMove move = askPlayerMove(p);
+                    handleAction(p, move);
                 }
           
                 else{
@@ -117,7 +115,81 @@ public class Game {
             }
             playersInRound.removeAll(removeFromRound);
         }
+        for (Player p : playersInRound){
+            p.roundBet = 0;
+        }
         currentTargetBet = 0;
+    }
+    
+    public void handleAction(Player player, PlayerMove move) {
+
+        switch (move.getAction()) {
+
+            case FOLD:
+                removeFromRound.add(player);
+                break;
+
+            case CALL:
+                int amountNeeded = currentTargetBet - player.roundBet;
+
+                player.playerBalance -= amountNeeded;
+                player.roundBet += amountNeeded;
+                middle.gamePott += amountNeeded;
+                player.hasChecked = true;
+
+                break;
+
+            case RAISE:
+
+                int newTotalBet = move.getRaiseAmount();
+
+                int amountToAdd = newTotalBet - player.roundBet;
+
+                player.playerBalance -= amountToAdd;
+                player.roundBet = newTotalBet;
+                middle.gamePott += amountToAdd;
+
+                currentTargetBet = newTotalBet;
+                newLastRaiser(player);
+
+                break;
+        }
+    }
+
+    private PlayerMove askPlayerMove(Player player) {
+
+        String[] options = { "Fold", "Call", "Raise" };
+
+        int choice = JOptionPane.showOptionDialog(
+                null,
+                player.name + "'s turn",
+                "Action",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[1]);
+
+        switch (choice) {
+
+            case 0:
+                return new PlayerMove(PlayerAction.FOLD, 0);
+
+            case 1:
+                return new PlayerMove(PlayerAction.CALL, 0);
+
+            case 2:
+
+                int raiseTo = askForValidInt(
+                        "Raise to how much?",
+                        currentTargetBet + 1,
+                        player.playerBalance + player.roundBet);
+
+                return new PlayerMove(PlayerAction.RAISE, raiseTo);
+
+            default:
+                return new PlayerMove(PlayerAction.FOLD, 0);
+        }
     }
     
 
@@ -170,6 +242,14 @@ public class Game {
             p.resetplayer();
         }
     }
+    
+    public void newLastRaiser(Player player){
+      for (Player p:players){
+        p.isLastRaiser = false;
+      }
+      player.isLastRaiser = true;
+    }
+    
 
     public Integer askForValidInt(String message, int min, int max) {
         while (true) {

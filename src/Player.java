@@ -17,7 +17,9 @@ public class Player {
    int roundBet;
    String name;
    boolean isBigBlind = false;
-   boolean isSmallBlind = false;
+   boolean isLastRaiser = false;
+   boolean hasChecked = false;
+
 
    Player(String name, int id) {
       this.name = name;
@@ -267,12 +269,13 @@ public class Player {
          possibleHand.clear();
       }
       isBigBlind = false;
-      isSmallBlind = false;
       handCards.clear();
       lastTiebreakValue = new int[] { 0, 0, 0, 0, 0 };
       roundBet = 0;
 
    }
+
+  
 
    public boolean hasStoppedPlaying(){
       if (playerBalance < 1){
