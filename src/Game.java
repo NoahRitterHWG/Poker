@@ -9,6 +9,7 @@ public class Game {
     int bigBlindIndex = 1;
     public ArrayList<Player> players;
     ArrayList<Player> playersInRound;
+    ArrayList<Player> stoppedPlaying;
     Middle middle;
 
     Game() {
@@ -50,6 +51,7 @@ public class Game {
     }
 
     public void startRound() {
+        resetplayers();
         highestRoundBet = 0;
         playersInRound = new ArrayList<>(players);
         Deck deck = new Deck();
@@ -67,6 +69,7 @@ public class Game {
         middle.revealCard(1);
         betRound();
         showdown();
+        askForContinuation();
     }
 
     public void showdown(){
@@ -120,6 +123,30 @@ public class Game {
             }
         }
         return winner;
+    }
+
+    public void askForContinuation(){
+        stoppedPlaying = new ArrayList<>();
+        for (Player p:players){
+            if(p.hasStoppedPlaying()){
+                stoppedPlaying.add(p);
+                JOptionPane.showConfirmDialog(null, "Thanks for playing");
+            }          
+        }
+        players.remove(stoppedPlaying);
+        if(players.size() >= 2){
+            startRound();
+        }
+        else{
+            JOptionPane.showConfirmDialog(null, "Game Over");
+            System.exit(0);
+        }
+    }
+
+    public void resetplayers(){
+        for (Player p:players){
+            p.resetplayer();
+        }
     }
 
     public Integer askForValidInt(String message, int min, int max) {

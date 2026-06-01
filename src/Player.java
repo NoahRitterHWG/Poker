@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.swing.JOptionPane;
+
 public class Player {
 
    ArrayList<Card> bestPossibleHand;
@@ -250,5 +252,26 @@ public class Player {
             count++;
       }
       return count == target;
+   }
+
+   public void resetplayer(){
+      bestPossibleHand.clear();
+      availableCards.clear();
+      possibleHand.clear();
+      handCards.clear();
+      for(int i = 0; i<=4; i++){
+         lastTiebreakValue[i]=0;
+      }
+      roundBet = 0;
+
+   }
+
+   public boolean hasStoppedPlaying(){
+      if (playerBalance < 1){
+         JOptionPane.showMessageDialog(null, "You've ran out of money!");
+         return true;
+      }
+      int continuePlaying = JOptionPane.showConfirmDialog(null,this.name +", do you want to continue playing?");
+      return continuePlaying != JOptionPane.YES_OPTION;
    }
 }
