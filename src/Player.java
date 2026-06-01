@@ -16,6 +16,8 @@ public class Player {
    int id;
    int roundBet;
    String name;
+   boolean isBigBlind = false;
+   boolean isSmallBlind = false;
 
    Player(String name, int id) {
       this.name = name;
@@ -264,6 +266,8 @@ public class Player {
       if (possibleHand != null){
          possibleHand.clear();
       }
+      isBigBlind = false;
+      isSmallBlind = false;
       handCards.clear();
       lastTiebreakValue = new int[] { 0, 0, 0, 0, 0 };
       roundBet = 0;

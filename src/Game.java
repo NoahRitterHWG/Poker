@@ -4,8 +4,8 @@ import javax.swing.JOptionPane;
 public class Game {
     int currentTargetBet;
     int numberOfPlayers;
-    int activePlayerIndex = 0;
-    int smallBlindIndex = 0;
+    int activePlayerIndex;
+    int smallBlindIndex;
     int bigBlindIndex = 1;
     public ArrayList<Player> players;
     ArrayList<Player> playersInRound;
@@ -53,8 +53,12 @@ public class Game {
 
     public void startRound() {
         resetplayers();
-        currentTargetBet = 1;
+        currentTargetBet = 200;
+        Player first = players.remove(0);
+        players.add(first);
         playersInRound = new ArrayList<>(players);
+        smallBlindIndex = players.size()-2;
+        bigBlindIndex = players.size()-1;
         Deck deck = new Deck();
         deck.shuffledeck();
         middle = new Middle();
@@ -62,6 +66,8 @@ public class Game {
         for (int i = 0; i < numberOfPlayers; i++) {
             players.get(i).takeCards(deck);
         }
+        players.get(bigBlindIndex).isBigBlind = true;
+        players.get(smallBlindIndex).isSmallBlind = true;
         betRound();
         middle.revealCard(3);
         betRound();
@@ -86,7 +92,16 @@ public class Game {
         main: while(true){
             removeFromRound = new ArrayList<>();
             for(Player p:playersInRound){
-                if (p.roundBet != currentTargetBet){
+                if (p.isBigBlind){
+                    // ask for fould/Check/Raise roundBet = 0/highestRoundBet/int n
+                    if (p.roundBet >= currentTargetBet) {
+                        currentTargetBet = p.roundBet;
+                    } else {
+                        removeFromRound.add(p);
+                    }
+                    p.isBigBlind = false;
+                }
+                else if (p.roundBet != currentTargetBet){
                 //ask for fould/Check/Raise roundBet = 0/highestRoundBet/int n
                     if(p.roundBet >= currentTargetBet){
                         currentTargetBet = p.roundBet;
@@ -95,6 +110,7 @@ public class Game {
                         removeFromRound.add(p);
                     }
                 }
+          
                 else{
                     break main;
                 }
@@ -136,7 +152,7 @@ public class Game {
             if(p.hasStoppedPlaying()){
                 stoppedPlaying.add(p);
                 JOptionPane.showConfirmDialog(null, "Thanks for playing");
-            }          
+            }
         }
         players.removeAll(stoppedPlaying);
         if(players.size() >= 2){
