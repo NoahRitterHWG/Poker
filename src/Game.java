@@ -56,7 +56,7 @@ public class Game {
         playersInRound = new ArrayList<>(players);
         Deck deck = new Deck();
         deck.shuffledeck();
-        Middle middle = new Middle();
+        middle = new Middle();
         middle.takeCards(deck);
         for (int i = 0; i < numberOfPlayers; i++) {
             players.get(i).takeCards(deck);
@@ -133,7 +133,7 @@ public class Game {
                 JOptionPane.showConfirmDialog(null, "Thanks for playing");
             }          
         }
-        players.remove(stoppedPlaying);
+        players.removeAll(stoppedPlaying);
         if(players.size() >= 2){
             startRound();
         }

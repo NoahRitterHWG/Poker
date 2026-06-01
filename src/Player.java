@@ -255,9 +255,15 @@ public class Player {
    }
 
    public void resetplayer(){
-      bestPossibleHand.clear();
-      availableCards.clear();
-      possibleHand.clear();
+      if (bestPossibleHand != null){
+         bestPossibleHand.clear();
+      }
+      if (availableCards != null){
+         availableCards.clear();
+      }
+      if (possibleHand != null){
+         possibleHand.clear();
+      }
       handCards.clear();
       for(int i = 0; i<=4; i++){
          lastTiebreakValue[i]=0;
