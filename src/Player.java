@@ -265,9 +265,7 @@ public class Player {
          possibleHand.clear();
       }
       handCards.clear();
-      for(int i = 0; i<=4; i++){
-         lastTiebreakValue[i]=0;
-      }
+      lastTiebreakValue = new int[] { 0, 0, 0, 0, 0 };
       roundBet = 0;
 
    }

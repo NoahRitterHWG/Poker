@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class Game {
-    int highestRoundBet;
+    int currentTargetBet;
     int numberOfPlayers;
     int activePlayerIndex = 0;
     int smallBlindIndex = 0;
@@ -10,6 +10,7 @@ public class Game {
     public ArrayList<Player> players;
     ArrayList<Player> playersInRound;
     ArrayList<Player> stoppedPlaying;
+    ArrayList<Player> removeFromRound;
     Middle middle;
 
     Game() {
@@ -52,7 +53,7 @@ public class Game {
 
     public void startRound() {
         resetplayers();
-        highestRoundBet = 0;
+        currentTargetBet = 1;
         playersInRound = new ArrayList<>(players);
         Deck deck = new Deck();
         deck.shuffledeck();
@@ -73,30 +74,34 @@ public class Game {
     }
 
     public void showdown(){
-        for (Player p:playersInRound){
-            JOptionPane.showConfirmDialog(null, p.name + "has a "+ p.bestHand);
-        }
         Player p = determinedWinner(middle);
+        for (Player player:playersInRound){
+            JOptionPane.showConfirmDialog(null, player.name + "has a "+ player.bestHand);
+        }
         JOptionPane.showConfirmDialog(null, p.name + "wins $"+middle.gamePott);
+        p.playerBalance += middle.gamePott;
     }
 
     public void betRound(){
         main: while(true){
-        for(Player p:playersInRound){
-            if (p.roundBet != highestRoundBet){
-            //ask for fould/Check/Raise roundBet = 0/highestRoundBet/int n
-                if(p.roundBet >= highestRoundBet){
-                    highestRoundBet = p.roundBet;
+            removeFromRound = new ArrayList<>();
+            for(Player p:playersInRound){
+                if (p.roundBet != currentTargetBet){
+                //ask for fould/Check/Raise roundBet = 0/highestRoundBet/int n
+                    if(p.roundBet >= currentTargetBet){
+                        currentTargetBet = p.roundBet;
+                    }
+                    else{
+                        removeFromRound.add(p);
+                    }
                 }
                 else{
-                    playersInRound.remove(p);
+                    break main;
                 }
             }
-            else{
-                break main;
-            }
+            playersInRound.removeAll(removeFromRound);
         }
-    }
+        currentTargetBet = 0;
     }
     
 
@@ -135,6 +140,7 @@ public class Game {
         }
         players.removeAll(stoppedPlaying);
         if(players.size() >= 2){
+            numberOfPlayers = players.size();
             startRound();
         }
         else{
