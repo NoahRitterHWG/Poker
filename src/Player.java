@@ -272,6 +272,7 @@ public class Player {
       handCards.clear();
       lastTiebreakValue = new int[] { 0, 0, 0, 0, 0 };
       roundBet = 0;
+      hasChecked = false;
 
    }
 

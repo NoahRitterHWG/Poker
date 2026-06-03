@@ -14,7 +14,7 @@ public class Card {
             return value + "-" + type.getCardTypeChar();
         }
         else{    
-            return value.getCardValue() + "-" + type.getCardTypeChar();
+            return (value.getCardValue()+2) + "-" + type.getCardTypeChar();
             }
         }
 

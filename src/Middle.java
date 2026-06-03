@@ -14,6 +14,7 @@ public class Middle {
     public void revealCard(int i){
         for(int e = 0; e<i; e++){
             uncovertCarts++;
+            
         }
     }
 
@@ -21,7 +22,8 @@ public class Middle {
         for(int i=0; i<5; i++){
             middleCards.add(deck.getCards().get(0));
             deck.getCards().remove(0);
-            System.out.println("Middle:"+middleCards.size());
+            System.out.println("Middle:" + middleCards.get(i).toString()); // Test
+            
         }
     }
     public ArrayList<Card> getMiddleCards(){

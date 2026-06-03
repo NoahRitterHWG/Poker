@@ -63,25 +63,37 @@ public class Game {
         deck.shuffledeck();
         middle = new Middle();
         middle.takeCards(deck);
-        for (int i = 0; i < numberOfPlayers; i++) {
-            players.get(i).takeCards(deck);
+        for (Player p:players) {
+            p.takeCards(deck);
+            System.out.println(p.name+" has "+p.handCards.get(0).toString()+" and "+p.handCards.get(1).toString()); //Test
         }
         players.get(smallBlindIndex).playerBalance -= 100;
         players.get(smallBlindIndex).roundBet = 100;
+        
+        System.out.println(players.get(smallBlindIndex).name);// Test
+  
         middle.gamePott += 100;
 
         players.get(bigBlindIndex).playerBalance -= 200;
         players.get(bigBlindIndex).roundBet = 200;
         middle.gamePott += 200;
         players.get(bigBlindIndex).isBigBlind = true;
+        
+        System.out.println(players.get(bigBlindIndex).name);// Test
+        
 
         betRound();
+        //test
+        System.out.println("1");// Test
         middle.revealCard(3);
         betRound();
+        System.out.println("2");// Test
         middle.revealCard(1);
         betRound();
+        System.out.println("3");// Test
         middle.revealCard(1);
         betRound();
+        System.out.println("4");// Test
         showdown();
         askForContinuation();
     }
@@ -89,9 +101,9 @@ public class Game {
     public void showdown(){
         Player p = determinedWinner(middle);
         for (Player player:playersInRound){
-            JOptionPane.showConfirmDialog(null, player.name + "has a "+ player.bestHand);
+            JOptionPane.showMessageDialog(null, player.name + " has a "+ player.bestHand);
         }
-        JOptionPane.showConfirmDialog(null, p.name + "wins $"+middle.gamePott);
+        JOptionPane.showMessageDialog(null, p.name + " wins $"+middle.gamePott);
         p.playerBalance += middle.gamePott;
     }
 
@@ -99,27 +111,36 @@ public class Game {
         main: while(true){
             removeFromRound = new ArrayList<>();
             for(Player p:playersInRound){
-                if (p.isBigBlind){
-                    PlayerMove move = askPlayerMove(p);
-                    handleAction(p, move);
-                    p.isBigBlind = false;
+                if (!removeFromRound.contains(p)){
+                    if (p.isBigBlind){
+                        PlayerMove move = askPlayerMove(p);
+                        handleAction(p, move);
+                        p.isBigBlind = false;
+                        System.out.println("BB has acted");//Test
+                    }
+                    else if (!p.isLastRaiser && !p.hasChecked){
+                        PlayerMove move = askPlayerMove(p);
+                        handleAction(p, move);
+                    }
+            
+                    else{
+                        break main;
                 }
-                else if (!p.isLastRaiser && !p.hasChecked){
-                    PlayerMove move = askPlayerMove(p);
-                    handleAction(p, move);
-                }
-          
-                else{
-                    break main;
-                }
+            }
             }
             playersInRound.removeAll(removeFromRound);
         }
+        playersInRound.removeAll(removeFromRound);
         for (Player p : playersInRound){
+            System.out.println(p.roundBet);//Test
             p.roundBet = 0;
-            p.hasChecked = false;
+        }
+        noOneHasChecked();
+        for (Player p : players) {
+            p.isLastRaiser = false;
         }
         currentTargetBet = 0;
+        
     }
     
     public void handleAction(Player player, PlayerMove move) {
@@ -152,6 +173,7 @@ public class Game {
 
                 currentTargetBet = newTotalBet;
                 newLastRaiser(player);
+                noOneHasChecked();
 
                 break;
         }
@@ -200,11 +222,14 @@ public class Game {
             } else if (currentHandValue == winnerHandValue) {
                 int[] winnerTiebreak = winner.getTiebreakValues();
                 int[] playerToEvaluateTiebreak = playerToEvaluate.getTiebreakValues();
+                System.out.println("current"+winnerTiebreak);//test
                 if (playerToEvaluate.winsTiebreak(winnerTiebreak, playerToEvaluateTiebreak)) {
                     winner = playerToEvaluate;
+                    System.out.println("new" + playerToEvaluate);// test
                 }
             }
         }
+        System.out.println("final:"+ winner.getTiebreakValues()); //test
         return winner;
     }
 
@@ -213,7 +238,7 @@ public class Game {
         for (Player p:players){
             if(p.hasStoppedPlaying()){
                 stoppedPlaying.add(p);
-                JOptionPane.showConfirmDialog(null, "Thanks for playing");
+                JOptionPane.showMessageDialog(null, "Thanks for playing");
             }
         }
         players.removeAll(stoppedPlaying);
@@ -222,7 +247,7 @@ public class Game {
             startRound();
         }
         else{
-            JOptionPane.showConfirmDialog(null, "Game Over");
+            JOptionPane.showMessageDialog(null, "Game Over");
             System.exit(0);
         }
     }
@@ -238,6 +263,11 @@ public class Game {
         p.isLastRaiser = false;
       }
       player.isLastRaiser = true;
+    }
+    public void noOneHasChecked(){
+        for (Player p:players){
+            p.hasChecked = false;
+        }
     }
     
 
