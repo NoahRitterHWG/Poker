@@ -117,8 +117,14 @@ public class Game {
 
     public void betRound(){
         main: while(true){
+          
             removeFromRound = new ArrayList<>();
             for(Player p:playersInRound){
+                if(playersInRound.size()-1 <= removeFromRound.size()){
+                    playersInRound.removeAll(removeFromRound);
+                    showdown();
+                    askForContinuation();
+                }
                 if (!removeFromRound.contains(p)){
                     if (p.isBigBlind){
                         PlayerMove move = askPlayerMove(p);
@@ -182,6 +188,7 @@ public class Game {
                 currentTargetBet = newTotalBet;
                 newLastRaiser(player);
                 noOneHasChecked();
+                gui.updatePlayersPanel();
 
                 break;
         }
