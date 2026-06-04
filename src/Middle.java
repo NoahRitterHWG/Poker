@@ -11,13 +11,6 @@ public class Middle {
     this.gamePott=0;
     }
 
-    public void revealCard(int i){
-        for(int e = 0; e<i; e++){
-            uncovertCarts++;
-            
-        }
-    }
-
     public void takeCards(Deck deck){   //Karten fÃ¼r die Mitte werden ausgesucht
         for(int i=0; i<5; i++){
             middleCards.add(deck.getCards().get(0));

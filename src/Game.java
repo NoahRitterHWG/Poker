@@ -1,7 +1,10 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.JOptionPane;
 
+
 public class Game {
+    GameGUI gui;
     int currentTargetBet;
     int numberOfPlayers;
     int activePlayerIndex;
@@ -14,7 +17,9 @@ public class Game {
     Middle middle;
 
     Game() {
+        gui = new GameGUI(this);
         players = new ArrayList<Player>();
+
     }
 
     public ArrayList<Player> getPlayers() {
@@ -22,14 +27,14 @@ public class Game {
     }
 
     public void startGame() {
-        Integer numberOfPlayersInteger = askForValidInt("Wie viele Spieler sollen teilnehmen? (2-10)", 2, 10);
+        Integer numberOfPlayersInteger = askForValidInt("Wie viele Spieler sollen teilnehmen? (2-6)", 2, 6);
         if (numberOfPlayersInteger == null) {
             System.exit(0);
         }
         numberOfPlayers = numberOfPlayersInteger;
-        String uebersichtPlayers = "Die Spieler: ";
+        String uebersichtPlayers = "The Players: ";
         for (int i = 0; i < numberOfPlayers; i++) {
-            String playerName = JOptionPane.showInputDialog(null,"Spieler " + (i + 1) + ", wie ist dein Name?");
+            String playerName = JOptionPane.showInputDialog(null,"Player " + (i + 1) + ", whats your name?");
             if (playerName == null) {
                 players.clear();
                 this.startGame();
@@ -42,7 +47,7 @@ public class Game {
                 uebersichtPlayers += ", ";
             }
         }
-        int antwort = JOptionPane.showConfirmDialog(null,uebersichtPlayers,"Kontrolle",JOptionPane.OK_CANCEL_OPTION);
+        int antwort = JOptionPane.showConfirmDialog(null,uebersichtPlayers,"The Players",JOptionPane.OK_CANCEL_OPTION);
         if (antwort == JOptionPane.CANCEL_OPTION) {
             players.clear();
             startGame();
@@ -63,6 +68,7 @@ public class Game {
         deck.shuffledeck();
         middle = new Middle();
         middle.takeCards(deck);
+        gui.updateMiddleCards(middle, 0);
         for (Player p:players) {
             p.takeCards(deck);
             System.out.println(p.name+" has "+p.handCards.get(0).toString()+" and "+p.handCards.get(1).toString()); //Test
@@ -85,13 +91,13 @@ public class Game {
         betRound();
         //test
         System.out.println("1");// Test
-        middle.revealCard(3);
+        gui.updateMiddleCards(middle, 3);
         betRound();
         System.out.println("2");// Test
-        middle.revealCard(1);
+        gui.updateMiddleCards(middle, 4);
         betRound();
         System.out.println("3");// Test
-        middle.revealCard(1);
+        gui.updateMiddleCards(middle, 5);
         betRound();
         System.out.println("4");// Test
         showdown();
@@ -101,6 +107,8 @@ public class Game {
     public void showdown(){
         Player p = determinedWinner(middle);
         for (Player player:playersInRound){
+            gui.updatePlayerLabel(player);
+            gui.updateActivePlayerCards(player);
             JOptionPane.showMessageDialog(null, player.name + " has a "+ player.bestHand);
         }
         JOptionPane.showMessageDialog(null, p.name + " wins $"+middle.gamePott);
@@ -181,27 +189,15 @@ public class Game {
 
     private PlayerMove askPlayerMove(Player player) {
 
-        String[] options = { "Fold", "Call", "Raise" };
+        System.out.println("Waiting for move from " + player.name);//test
 
-        int choice = JOptionPane.showOptionDialog(null,player.name + "'s turn","Action",JOptionPane.DEFAULT_OPTION,JOptionPane.INFORMATION_MESSAGE,null, options, options[1]);
+        activePlayerIndex = players.indexOf(player);
 
-        switch (choice) {
+        gui.updatePlayerLabel(player);
+        gui.updateActivePlayerCards(player);
+        gui.updateInfo(player);
 
-            case 0:
-                return new PlayerMove(PlayerAction.FOLD, 0);
-
-            case 1:
-                return new PlayerMove(PlayerAction.CALL, 0);
-
-            case 2:
-
-                int raiseTo = askForValidInt("Raise to how much?",currentTargetBet + 1, player.playerBalance + player.roundBet);
-
-                return new PlayerMove(PlayerAction.RAISE, raiseTo);
-
-            default:
-                return new PlayerMove(PlayerAction.FOLD, 0);
-        }
+        return gui.waitForMove();
     }
     
 
@@ -214,22 +210,24 @@ public class Game {
             Player playerToEvaluate = playersInRound.get(i);
             playerToEvaluate.evaluate(middle.getMiddleCards());
 
-            int winnerHandValue = winner.evaluate(middle.getMiddleCards()).getHandValue();
-            int currentHandValue = playerToEvaluate.evaluate(middle.getMiddleCards()).getHandValue();
+            int winnerHandValue = winner.bestHand.getHandValue();
+            int currentHandValue = playerToEvaluate.bestHand.getHandValue();
 
             if (currentHandValue > winnerHandValue) {
                 winner = playerToEvaluate;
             } else if (currentHandValue == winnerHandValue) {
                 int[] winnerTiebreak = winner.getTiebreakValues();
                 int[] playerToEvaluateTiebreak = playerToEvaluate.getTiebreakValues();
-                System.out.println("current"+winnerTiebreak);//test
+                System.out.println("current: "+Arrays.toString(winnerTiebreak));//test
                 if (playerToEvaluate.winsTiebreak(winnerTiebreak, playerToEvaluateTiebreak)) {
                     winner = playerToEvaluate;
-                    System.out.println("new" + playerToEvaluate);// test
+                    System.out.println("new: " + Arrays.toString(playerToEvaluateTiebreak));// test
                 }
             }
         }
-        System.out.println("final:"+ winner.getTiebreakValues()); //test
+        
+        System.out.println("final: "+ Arrays.toString(winner.getTiebreakValues())); //test
+        
         return winner;
     }
 
@@ -281,10 +279,10 @@ public class Game {
                 int parsed = Integer.parseInt(value);
                 if (parsed <= max && parsed >= min) {
                     return parsed;
-                } else {JOptionPane.showMessageDialog(null,"Ungültige Eingabe. Bitte geben Sie eine Zahl zwischen " + min + " und " + max + " ein.","Fehler",JOptionPane.ERROR_MESSAGE);
+                } else {JOptionPane.showMessageDialog(null,"Please enter a number between " + min + " and " + max + ".","Error",JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null,"Ungültige Eingabe. Bitte geben Sie eine Zahl ein.","Fehler",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,"Please enter a valid number.","Error",JOptionPane.ERROR_MESSAGE);
             }
         }
     }
