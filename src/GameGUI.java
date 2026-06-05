@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class GameGUI extends JFrame {
 
@@ -11,9 +12,11 @@ public class GameGUI extends JFrame {
     static final Color PANEL_COLOR = new Color(18, 70, 45);
 
     private PlayerMove selectedMove;
+    private boolean continuePressed;
 
     private final JPanel activePlayerCardsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
     private final JPanel communityCardsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+    private final JPanel centerPanel = new JPanel();
 
     private final JLabel playerLabel = new JLabel("Waiting for player...");
     private final JLabel stageLabel = new JLabel("Texas Hold'em");
@@ -27,6 +30,7 @@ public class GameGUI extends JFrame {
     private final JButton foldButton = new JButton("Fold");
     private final JButton callButton = new JButton("Call / Check");
     private final JButton raiseButton = new JButton("Raise");
+    private final JButton continueButton = new JButton("Continue");
 
     GameGUI(Game game) {
         super("Poker");
@@ -69,7 +73,6 @@ public class GameGUI extends JFrame {
 
       
         // middle section
-        JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
 
@@ -102,10 +105,13 @@ public class GameGUI extends JFrame {
         configureButton(foldButton);
         configureButton(callButton);
         configureButton(raiseButton);
+        configureButton(continueButton);
+        continueButton.setVisible(false);
 
         actionPanel.add(foldButton);
         actionPanel.add(callButton);
         actionPanel.add(raiseButton);
+        actionPanel.add(continueButton);
 
         root.add(actionPanel, BorderLayout.SOUTH);
     }
@@ -164,6 +170,7 @@ public class GameGUI extends JFrame {
                 submitMove(new PlayerMove(PlayerAction.RAISE, raiseTo));
             }
         });
+        continueButton.addActionListener(e -> continueGame());
     }
 
     public JLabel getCardLabel(Card card) {
@@ -276,9 +283,28 @@ public class GameGUI extends JFrame {
         return selectedMove;
     }
 
+    public synchronized void waitForContinue() {
+
+        continuePressed = false;
+
+        while (!continuePressed) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
     private synchronized void submitMove(PlayerMove move) {
 
         selectedMove = move;
+        notifyAll();
+    }
+
+    private synchronized void continueGame() {
+
+        continuePressed = true;
         notifyAll();
     }
 
@@ -341,9 +367,12 @@ public class GameGUI extends JFrame {
 
         for (Player p : game.players) {
 
-            sb.append(p.name)
-                    .append("  $")
-                    .append(p.playerBalance);
+            String line = String.format(
+                    "%-12s $%6d",
+                    p.name,
+                    p.playerBalance);
+
+            sb.append(line);
 
             if (p == game.players.get(game.activePlayerIndex)) {
                 sb.append("  ←");
@@ -353,5 +382,122 @@ public class GameGUI extends JFrame {
         }
 
         playersArea.setText(sb.toString());
+    }
+
+    public void showShowdown(ArrayList<Player> players) {
+
+        SwingUtilities.invokeLater(() -> {
+
+        centerPanel.removeAll();
+
+        JLabel title =new JLabel("SHOWDOWN");
+
+        title.setFont(new Font("SansSerif",Font.BOLD,32));
+
+        title.setForeground(Color.WHITE);
+
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        centerPanel.add(title);
+        centerPanel.add(Box.createVerticalStrut(20));
+            int columns;
+
+            if (players.size() <= 4) {
+                columns = 2;
+            } else {
+                columns = 3;
+            }
+
+            JPanel showdownGrid = new JPanel(
+                    new GridLayout(0,columns,20,20));
+
+            showdownGrid.setOpaque(false);
+
+        showdownGrid.setOpaque(false);
+
+        for (Player p : players) {
+
+            JPanel playerPanel =new JPanel();
+
+            playerPanel.setOpaque(false);
+            playerPanel.setLayout(new BoxLayout(playerPanel,BoxLayout.Y_AXIS));
+
+            JLabel nameLabel = new JLabel(p.name);
+
+            nameLabel.setForeground(Color.WHITE);
+            nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel handLabel = new JLabel(p.bestHand.toString());
+
+            handLabel.setForeground(Color.WHITE);
+            handLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            playerPanel.add(nameLabel);
+            playerPanel.add(handLabel);
+
+            JPanel cardsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            cardsPanel.setOpaque(false);
+
+            for (Card card : p.handCards) {
+                cardsPanel.add(getCardLabel(card));
+            }
+
+            playerPanel.add(cardsPanel);
+            showdownGrid.add(playerPanel);
+        }
+        centerPanel.add(showdownGrid);
+        centerPanel.revalidate();
+        centerPanel.repaint();
+    });
+    }
+    
+    public void showPlayerView() {
+
+        SwingUtilities.invokeLater(() -> {
+
+            centerPanel.removeAll();
+
+            centerPanel.add(
+                    Box.createVerticalGlue());
+
+            centerPanel.add(playerLabel);
+
+            centerPanel.add(
+                    Box.createVerticalStrut(20));
+
+            centerPanel.add(
+                    activePlayerCardsPanel);
+
+            centerPanel.add(
+                    Box.createVerticalGlue());
+
+            centerPanel.revalidate();
+            centerPanel.repaint();
+        });
+    }
+
+    public void enterShowdownMode() {
+
+        foldButton.setVisible(false);
+        callButton.setVisible(false);
+        raiseButton.setVisible(false);
+
+        continueButton.setVisible(true);
+
+        revalidate();
+        repaint();
+    }
+
+    public void exitShowdownMode() {
+
+        foldButton.setVisible(true);
+        callButton.setVisible(true);
+        raiseButton.setVisible(true);
+
+        continueButton.setVisible(false);
+
+        revalidate();
+        repaint();
     }
 }

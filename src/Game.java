@@ -58,8 +58,8 @@ public class Game {
     }
 
     public void startRound() {
-        resetplayers();
         
+        resetplayers();
         currentTargetBet = 200;
         Player first = players.remove(0);
         players.add(first);
@@ -113,10 +113,12 @@ public class Game {
     public void showdown(){
         for (Player player : playersInRound) {
             player.evaluate(middle.getMiddleCards());
-            gui.updatePlayerLabel(player);
-            gui.updateActivePlayerCards(player);
-            JOptionPane.showMessageDialog(null, player.name + " has a " + player.bestHand);
         }
+        gui.showShowdown(playersInRound);
+        gui.enterShowdownMode();
+        gui.waitForContinue();
+        gui.exitShowdownMode();
+        gui.showPlayerView();
     
         ArrayList<SidePot> pots = createSidePots();
         for (SidePot pot:pots){
