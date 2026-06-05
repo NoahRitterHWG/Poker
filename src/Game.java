@@ -11,6 +11,7 @@ public class Game {
     int activePlayerIndex;
     int smallBlindIndex;
     int bigBlindIndex = 1;
+    boolean roundEndedEarly = false;
     public ArrayList<Player> players;
     ArrayList<Player> playersInRound;
     ArrayList<Player> stoppedPlaying;
@@ -110,18 +111,35 @@ public class Game {
         
         System.out.println(players.get(bigBlindIndex).name);// Test
         
-
-        betRound();
+        roundEndedEarly = false;
+        betRound();    
+        if (roundEndedEarly) {
+            askForContinuation();
+            return;
+        }
+        
         //test
         System.out.println("1");// Test
         gui.updateMiddleCards(middle, 3);
         betRound();
+        if (roundEndedEarly) {
+            askForContinuation();
+            return;
+        }
         System.out.println("2");// Test
         gui.updateMiddleCards(middle, 4);
         betRound();
+        if (roundEndedEarly) {
+            askForContinuation();
+            return;
+        }
         System.out.println("3");// Test
         gui.updateMiddleCards(middle, 5);
         betRound();
+        if (roundEndedEarly) {
+            askForContinuation();
+            return;
+        }
         System.out.println("4");// Test
         showdown();
         askForContinuation();
@@ -184,7 +202,8 @@ public class Game {
                     playersInRound.removeAll(removeFromRound);
                     Player winner = playersInRound.get(0);
                     winner.playerBalance += middle.gamePott;
-                    askForContinuation();
+                    winner.totalRoundWinnings += middle.gamePott;
+                    roundEndedEarly = true;
                     return;
                 }
                 if (!removeFromRound.contains(p)){
