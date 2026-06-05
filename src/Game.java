@@ -35,12 +35,29 @@ public class Game {
         numberOfPlayers = numberOfPlayersInteger;
         String uebersichtPlayers = "The Players: ";
         for (int i = 0; i < numberOfPlayers; i++) {
-            String playerName = JOptionPane.showInputDialog(null,"Player " + (i + 1) + ", whats your name?");
-            if (playerName == null) {
-                players.clear();
-                this.startGame();
-                return;
+            String playerName;
+            while (true) {
+                playerName = JOptionPane.showInputDialog(null,"Player " + (i + 1) + ", what's your name?");
+
+                if (playerName == null) {
+                    players.clear();
+                    this.startGame();
+                    return;
+                }
+                playerName = playerName.trim();
+                if (playerName.isBlank()) {
+                    JOptionPane.showMessageDialog(null,"Name cannot be empty!","Invalid Input",JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                
+                if (playerName.length() > 8) {
+                    JOptionPane.showMessageDialog(null,"Name must be 8 characters or less!","Invalid Input",JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                break; 
             }
+            
             Player player = new Player(playerName, i);
             players.add(player);
             uebersichtPlayers += player.name;
@@ -110,32 +127,52 @@ public class Game {
         askForContinuation();
     }
 
-    public void showdown(){
+    public void showdown() {
+
         for (Player player : playersInRound) {
             player.evaluate(middle.getMiddleCards());
         }
-        gui.showShowdown(playersInRound);
+
+        gui.showShowdown(playersInRound,new ArrayList<>(),false);
+        gui.setContinueButtonText("Reveal Winner");
         gui.enterShowdownMode();
         gui.waitForContinue();
-        gui.exitShowdownMode();
-        gui.showPlayerView();
-    
+
         ArrayList<SidePot> pots = createSidePots();
-        for (SidePot pot:pots){
-            Player winner = determinedWinner(middle, pot.eligiblePlayers);
+        ArrayList<Player> winners = new ArrayList<>();
+
+        for (SidePot pot : pots) {
+
+            Player winner = determinedWinner(middle,pot.eligiblePlayers);
+
+            winners.add(winner);
+
             winner.playerBalance += pot.amount;
             winner.totalRoundWinnings += pot.amount;
         }
-        for (Player p:players){
-            if (p.totalRoundWinnings!=0){
-                int profit = p.playerBalance-p.playerBalanceAtStartOfRound;
-              if (profit > 0){
-                  JOptionPane.showMessageDialog(null, p.name + " wins $" + profit);
-              }
+
+        gui.showShowdown(playersInRound,winners,true);
+
+        gui.setContinueButtonText("Continue");
+
+        gui.waitForContinue();
+
+        gui.exitShowdownMode();
+        gui.showPlayerView();
+
+        for (Player p : players) {
+
+            if (p.totalRoundWinnings != 0) {
+
+                int profit = p.playerBalance- p.playerBalanceAtStartOfRound;
+
+                if (profit > 0) {
+                    JOptionPane.showMessageDialog(null,p.name + " wins $" + profit);
+                } else {
+                    JOptionPane.showMessageDialog(null,p.name + " regains $"+ (p.totalContribution + profit));
+                }
             }
         }
-
-        
     }
 
     public void betRound(){

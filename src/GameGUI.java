@@ -367,10 +367,7 @@ public class GameGUI extends JFrame {
 
         for (Player p : game.players) {
 
-            String line = String.format(
-                    "%-12s $%6d",
-                    p.name,
-                    p.playerBalance);
+            String line = String.format("%-9s $%6d",p.name,p.playerBalance);
 
             sb.append(line);
 
@@ -384,7 +381,7 @@ public class GameGUI extends JFrame {
         playersArea.setText(sb.toString());
     }
 
-    public void showShowdown(ArrayList<Player> players) {
+    public void showShowdown(ArrayList<Player> players, ArrayList<Player> winners, boolean reveal) {
 
         SwingUtilities.invokeLater(() -> {
 
@@ -400,34 +397,40 @@ public class GameGUI extends JFrame {
 
         centerPanel.add(title);
         centerPanel.add(Box.createVerticalStrut(20));
-            int columns;
+        int columns;
 
-            if (players.size() <= 4) {
-                columns = 2;
-            } else {
-                columns = 3;
-            }
+        if (players.size() <= 4) {
+            columns = 2;
+        } 
+        else {
+            columns = 3;
+        }
 
-            JPanel showdownGrid = new JPanel(
-                    new GridLayout(0,columns,20,20));
+        JPanel showdownGrid = new JPanel(new GridLayout(0,columns,20,20));
 
-            showdownGrid.setOpaque(false);
+        showdownGrid.setOpaque(false);
 
         showdownGrid.setOpaque(false);
 
         for (Player p : players) {
-
+            boolean isWinner = winners.contains(p);
+            
             JPanel playerPanel =new JPanel();
 
             playerPanel.setOpaque(false);
             playerPanel.setLayout(new BoxLayout(playerPanel,BoxLayout.Y_AXIS));
 
             JLabel nameLabel = new JLabel(p.name);
-
             nameLabel.setForeground(Color.WHITE);
             nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JLabel handLabel = new JLabel(p.bestHand.toString());
+            JLabel handLabel;
+
+            if (reveal) {
+                handLabel = new JLabel(p.bestHand.toString());
+            } else {
+                handLabel = new JLabel("???");
+            }
 
             handLabel.setForeground(Color.WHITE);
             handLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -440,7 +443,16 @@ public class GameGUI extends JFrame {
             cardsPanel.setOpaque(false);
 
             for (Card card : p.handCards) {
-                cardsPanel.add(getCardLabel(card));
+
+                if (reveal) {
+                    cardsPanel.add(getCardLabel(card));
+                } 
+                else {
+                    cardsPanel.add(getBackCardLabel());
+                }
+            }
+            if (isWinner) {
+                playerPanel.setBorder(BorderFactory.createLineBorder(Color.YELLOW,4));
             }
 
             playerPanel.add(cardsPanel);
@@ -500,4 +512,10 @@ public class GameGUI extends JFrame {
         revalidate();
         repaint();
     }
+
+    public void setContinueButtonText(String text) {
+        continueButton.setText(text);
+    }
+
 }
+
