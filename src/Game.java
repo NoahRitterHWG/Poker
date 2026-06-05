@@ -59,6 +59,7 @@ public class Game {
 
     public void startRound() {
         resetplayers();
+        
         currentTargetBet = 200;
         Player first = players.remove(0);
         players.add(first);
@@ -71,6 +72,7 @@ public class Game {
         middle.takeCards(deck);
         gui.updateMiddleCards(middle, 0);
         for (Player p:players) {
+            p.playerBalanceAtStartOfRound = p.playerBalance;
             p.takeCards(deck);
             System.out.println(p.name+" has "+p.handCards.get(0).toString()+" and "+p.handCards.get(1).toString()); //Test
         }
@@ -119,8 +121,16 @@ public class Game {
         ArrayList<SidePot> pots = createSidePots();
         for (SidePot pot:pots){
             Player winner = determinedWinner(middle, pot.eligiblePlayers);
-            JOptionPane.showMessageDialog(null, winner.name + " wins $" + pot.amount + " from a sidepot");
             winner.playerBalance += pot.amount;
+            winner.totalRoundWinnings += pot.amount;
+        }
+        for (Player p:players){
+            if (p.totalRoundWinnings!=0){
+                int profit = p.playerBalance-p.playerBalanceAtStartOfRound;
+              if (profit > 0){
+                  JOptionPane.showMessageDialog(null, p.name + " wins $" + profit);
+              }
+            }
         }
 
         

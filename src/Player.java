@@ -13,6 +13,8 @@ public class Player {
    int[] lastTiebreakValue = { 0, 0, 0, 0, 0 };
    PokerHand bestHand;
    int playerBalance = 10000;
+   int playerBalanceAtStartOfRound = playerBalance;
+   int totalRoundWinnings=0;
    int id;
    int roundBet;
    int totalContribution = 0;
@@ -282,7 +284,7 @@ public class Player {
    
    public boolean hasStoppedPlaying(){
       if (playerBalance < 1){
-         JOptionPane.showMessageDialog(null, "You've ran out of money!");
+         JOptionPane.showMessageDialog(null, this.name+" ,you've ran out of money!");
          return true;
       }
       int continuePlaying = JOptionPane.showConfirmDialog(null,this.name +", do you want to continue playing?");

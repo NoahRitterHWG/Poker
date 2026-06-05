@@ -50,9 +50,8 @@ public class GameGUI extends JFrame {
         root.setBorder(new EmptyBorder(15, 15, 15, 15));
         setContentPane(root);
 
-        // ===== TOP =====
-
-        JPanel topPanel = new JPanel();
+        // top section()
+        JPanel topPanel = new JPanel();                                                  
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setOpaque(false);
 
@@ -68,8 +67,8 @@ public class GameGUI extends JFrame {
 
         root.add(topPanel, BorderLayout.NORTH);
 
-        // ===== CENTER =====
-
+      
+        // middle section
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
@@ -88,14 +87,14 @@ public class GameGUI extends JFrame {
 
         root.add(centerPanel, BorderLayout.CENTER);
 
-        // ===== RIGHT INFO PANEL =====
+        //right infopanel
         JPanel playersPanel = createPlayersPanel();
         root.add(playersPanel, BorderLayout.WEST);
         JPanel infoPanel = createInfoPanel();
         root.add(infoPanel, BorderLayout.EAST);
         
 
-        // ===== BOTTOM ACTIONS =====
+        //Buttons
 
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         actionPanel.setOpaque(false);
