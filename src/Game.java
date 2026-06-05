@@ -119,7 +119,7 @@ public class Game {
         ArrayList<SidePot> pots = createSidePots();
         for (SidePot pot:pots){
             Player winner = determinedWinner(middle, pot.eligiblePlayers);
-            JOptionPane.showMessageDialog(null, winner.name + " wins $" + pot.amount + "from a sidepot");
+            JOptionPane.showMessageDialog(null, winner.name + " wins $" + pot.amount + " from a sidepot");
             winner.playerBalance += pot.amount;
         }
 
@@ -136,6 +136,7 @@ public class Game {
                     Player winner = playersInRound.get(0);
                     winner.playerBalance += middle.gamePott;
                     askForContinuation();
+                    return;
                 }
                 if (!removeFromRound.contains(p)){
                     if (p.isBigBlind){
@@ -341,6 +342,7 @@ public class Game {
                 contoributers++;
                 if (playersInRound.contains(p)){
                     eligiblePlayers.add(p);
+                    
                 }
             }
         }
@@ -348,11 +350,15 @@ public class Game {
         int potAmount =
             (level - previousLevel) * contoributers;
 
-        pots.add(new SidePot(potAmount,new ArrayList<>(eligiblePlayers))
-        );
+        pots.add(new SidePot(potAmount,new ArrayList<>(eligiblePlayers)));
         previousLevel = level;
+        System.out.print("Eligible Players for $" +potAmount+" pot: ");
+        for (Player test: eligiblePlayers){
+            System.out.print(test.name);
+        }
+        
+        
     }
-
     return pots;
 }
 }
