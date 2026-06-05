@@ -15,10 +15,12 @@ public class Player {
    int playerBalance = 10000;
    int id;
    int roundBet;
+   int totalContribution = 0;
    String name;
    boolean isBigBlind = false;
    boolean isLastRaiser = false;
    boolean hasChecked = false;
+   boolean isAllIn= false;
 
 
    Player(String name, int id) {
@@ -273,11 +275,11 @@ public class Player {
       lastTiebreakValue = new int[] { 0, 0, 0, 0, 0 };
       roundBet = 0;
       hasChecked = false;
+      totalContribution = 0;
+      isAllIn = false;
 
    }
-
-  
-
+   
    public boolean hasStoppedPlaying(){
       if (playerBalance < 1){
          JOptionPane.showMessageDialog(null, "You've ran out of money!");

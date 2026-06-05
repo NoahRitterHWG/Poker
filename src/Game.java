@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import javax.swing.JOptionPane;
 
 
@@ -75,6 +76,8 @@ public class Game {
         }
         players.get(smallBlindIndex).playerBalance -= 100;
         players.get(smallBlindIndex).roundBet = 100;
+        players.get(smallBlindIndex).totalContribution += 100;
+    
         
         System.out.println(players.get(smallBlindIndex).name);// Test
   
@@ -82,6 +85,7 @@ public class Game {
 
         players.get(bigBlindIndex).playerBalance -= 200;
         players.get(bigBlindIndex).roundBet = 200;
+        players.get(bigBlindIndex).totalContribution += 200;
         middle.gamePott += 200;
         players.get(bigBlindIndex).isBigBlind = true;
         
@@ -105,14 +109,21 @@ public class Game {
     }
 
     public void showdown(){
-        Player p = determinedWinner(middle);
-        for (Player player:playersInRound){
+        for (Player player : playersInRound) {
+            player.evaluate(middle.getMiddleCards());
             gui.updatePlayerLabel(player);
             gui.updateActivePlayerCards(player);
-            JOptionPane.showMessageDialog(null, player.name + " has a "+ player.bestHand);
+            JOptionPane.showMessageDialog(null, player.name + " has a " + player.bestHand);
         }
-        JOptionPane.showMessageDialog(null, p.name + " wins $"+middle.gamePott);
-        p.playerBalance += middle.gamePott;
+    
+        ArrayList<SidePot> pots = createSidePots();
+        for (SidePot pot:pots){
+            Player winner = determinedWinner(middle, pot.eligiblePlayers);
+            JOptionPane.showMessageDialog(null, winner.name + " wins $" + pot.amount + "from a sidepot");
+            winner.playerBalance += pot.amount;
+        }
+
+        
     }
 
     public void betRound(){
@@ -122,7 +133,8 @@ public class Game {
             for(Player p:playersInRound){
                 if(playersInRound.size()-1 <= removeFromRound.size()){
                     playersInRound.removeAll(removeFromRound);
-                    showdown();
+                    Player winner = playersInRound.get(0);
+                    winner.playerBalance += middle.gamePott;
                     askForContinuation();
                 }
                 if (!removeFromRound.contains(p)){
@@ -168,8 +180,14 @@ public class Game {
             case CALL:
                 int amountNeeded = currentTargetBet - player.roundBet;
 
+                if (amountNeeded >= player.playerBalance) {
+                    amountNeeded = player.playerBalance;
+                    player.isAllIn = true;
+                }
+
                 player.playerBalance -= amountNeeded;
                 player.roundBet += amountNeeded;
+                player.totalContribution += amountNeeded;
                 middle.gamePott += amountNeeded;
                 player.hasChecked = true;
 
@@ -180,9 +198,14 @@ public class Game {
                 int newTotalBet = move.getRaiseAmount();
 
                 int amountToAdd = newTotalBet - player.roundBet;
+                if (amountToAdd>=player.playerBalance){
+                    amountToAdd = player.playerBalance;
+                    player.isAllIn = true;
+                }
 
                 player.playerBalance -= amountToAdd;
-                player.roundBet = newTotalBet;
+                player.roundBet += amountToAdd;
+                player.totalContribution += amountToAdd;
                 middle.gamePott += amountToAdd;
 
                 currentTargetBet = newTotalBet;
@@ -206,15 +229,14 @@ public class Game {
 
         return gui.waitForMove();
     }
-    
 
-    public Player determinedWinner(Middle middle) {
-        Player winner = playersInRound.get(0);
+    public Player determinedWinner(Middle middle, ArrayList<Player> candidates) {
+        Player winner = candidates.get(0);
 
         winner.evaluate(middle.getMiddleCards()); // evaluate best hand of first player
 
-        for (int i = 1; i < playersInRound.size(); i++) {
-            Player playerToEvaluate = playersInRound.get(i);
+        for (int i = 1; i < candidates.size(); i++) {
+            Player playerToEvaluate = candidates.get(i);
             playerToEvaluate.evaluate(middle.getMiddleCards());
 
             int winnerHandValue = winner.bestHand.getHandValue();
@@ -269,13 +291,13 @@ public class Game {
       }
       player.isLastRaiser = true;
     }
+    
     public void noOneHasChecked(){
         for (Player p:players){
             p.hasChecked = false;
         }
     }
     
-
     public Integer askForValidInt(String message, int min, int max) {
         while (true) {
             String value = JOptionPane.showInputDialog(null, message);
@@ -293,4 +315,44 @@ public class Game {
             }
         }
     }
+
+    public ArrayList<SidePot> createSidePots() {
+
+    ArrayList<SidePot> pots = new ArrayList<>();
+    ArrayList<Integer> levels = new ArrayList<>();
+
+    for (Player p : players) {
+        if (p.totalContribution > 0 &&!levels.contains(p.totalContribution)) {
+            levels.add(p.totalContribution);
+        }
+    }
+
+    Collections.sort(levels);
+
+    int previousLevel = 0;
+
+    for (int level : levels) {
+
+        ArrayList<Player> eligiblePlayers = new ArrayList<>();
+        int contoributers = 0;
+
+        for (Player p : players) {
+            if (p.totalContribution >= level) {
+                contoributers++;
+                if (playersInRound.contains(p)){
+                    eligiblePlayers.add(p);
+                }
+            }
+        }
+
+        int potAmount =
+            (level - previousLevel) * contoributers;
+
+        pots.add(new SidePot(potAmount,new ArrayList<>(eligiblePlayers))
+        );
+        previousLevel = level;
+    }
+
+    return pots;
+}
 }
