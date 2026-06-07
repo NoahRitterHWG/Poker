@@ -1,3 +1,10 @@
+/**
+ * All possible poker hand types, ordered from weakest (0) to strongest (8).
+ * The value is used to compare hands during winner determination.
+ *
+ * @author Nouri Ayadhi
+ * @version 1.0
+ */
 public enum PokerHand {
 
     HIGHCARD(0, "High Card"),
@@ -13,15 +20,31 @@ public enum PokerHand {
     private final int handValue;
     private final String displayName;
 
+    /**
+     * Creates a {@code PokerHand} with the given value and display name.
+     *
+     * @param handValue   the numeric strength of this hand (higher is better)
+     * @param displayName the name shown in the UI
+     */
     PokerHand(int handValue, String displayName) {
         this.handValue = handValue;
         this.displayName = displayName;
     }
 
+    /**
+     * Returns the strength value of this hand.
+     *
+     * @return the hand value
+     */
     public int getHandValue() {
         return handValue;
     }
 
+    /**
+     * Returns the display name of this hand.
+     *
+     * @return the hand name as a string
+     */
     @Override
     public String toString() {
         return displayName;

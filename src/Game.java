@@ -3,31 +3,58 @@ import java.util.Arrays;
 import java.util.Collections;
 import javax.swing.JOptionPane;
 
-
+/**
+ * Controls the main game flow of a Texas Hold'em poker game.
+ * Manages rounds, betting, side pots, and winner determination.
+ * <p>
+ * {@code startGame}, {@code startRound}, and {@code betRound} were developed
+ * jointly by Nouri Ayadhi and Noah Ritter. All other methods written
+ * by Nouri Ayadhi.
+ * </p>
+ *
+ * @author Nouri Ayadhi, Noah Ritter
+ * @version 1.0
+ */
 public class Game {
+    /** The graphical interface for this game.*/
     GameGUI gui;
+    /** The current bet amount all players must match.*/
     int currentTargetBet;
+    /** The total number of players in the game. */
     int numberOfPlayers;
+    /** The index of the currently active player.*/
     int activePlayerIndex;
+    /** The index of the player with the small blind.*/
     int smallBlindIndex;
+    /** The index of the player with the big blind. */
     int bigBlindIndex = 1;
+    /** Whether the current round ended early (e.g. all but one player folded).*/
     boolean roundEndedEarly = false;
+    /** All players in the game. */
     public ArrayList<Player> players;
+    /** Players still active in the current round. */
     ArrayList<Player> playersInRound;
+    /** Players who chose to stop playing after the round. */
     ArrayList<Player> stoppedPlaying;
+    /** Players to be removed from the current round after a betting phase. */
     ArrayList<Player> removeFromRound;
+    /** The community cards and pot for the current round. */
     Middle middle;
-
+    /**
+     * Creates a new game and initializes the GUI and player list.
+     */
     Game() {
         gui = new GameGUI(this);
         players = new ArrayList<Player>();
 
     }
-
-    public ArrayList<Player> getPlayers() {
-        return players;
-    }
-
+    
+    /**
+     * Starts the game by asking for the number of players and their names,
+     * then launches the first round.
+     *
+     * @author Nouri Ayadhi, Noah Ritter
+     */
     public void startGame() {
         Integer numberOfPlayersInteger = askForValidInt("Wie viele Spieler sollen teilnehmen? (2-6)", 2, 6);
         if (numberOfPlayersInteger == null) {
@@ -75,6 +102,13 @@ public class Game {
         }
     }
 
+    /**
+     * Sets up and runs a full round of the game.
+     * Deals cards, gives out blinds, runs all four betting phases, and triggers the showdown.
+     * Ends early if all but one player folds.
+     *
+     * @author Nouri Ayadhi, Noah Ritter
+     */
     public void startRound() {
         
         resetplayers();
@@ -145,6 +179,11 @@ public class Game {
         askForContinuation();
     }
 
+    /**
+     * Runs the showdown at the end of a round.
+     * Evaluates all remaining players' hands, determines the winner(s)
+     * per side pot, distributes chips, and shows the results.
+     */
     public void showdown() {
 
         for (Player player : playersInRound) {
@@ -193,6 +232,13 @@ public class Game {
         }
     }
 
+    /**
+     * Runs a single betting phase. Asks each active player for their move
+     * in order until all players have acted. Ends the round early if only
+     * one player remains.
+     *
+     * @author Nouri Ayadhi, Noah Ritter
+     */
     public void betRound(){
         main: while(true){
           
@@ -238,6 +284,12 @@ public class Game {
         
     }
     
+    /**
+     * Handles folding, calling, and raising including all-in situations.
+     *
+     * @param player the player who is acting
+     * @param move   the move the player made
+     */
     public void handleAction(Player player, PlayerMove move) {
 
         switch (move.getAction()) {
@@ -286,6 +338,12 @@ public class Game {
         }
     }
 
+    /**
+     * Updates the GUI for the given player and waits for their move input.
+     *
+     * @param player the player whose turn it is
+     * @return the {@link PlayerMove} chosen by the player
+     */
     private PlayerMove askPlayerMove(Player player) {
 
         System.out.println("Waiting for move from " + player.name);//test
@@ -299,6 +357,14 @@ public class Game {
         return gui.waitForMove();
     }
 
+    /**
+     * Determines the winner from a list of candidates by comparing hand types
+     * and tiebreak values.
+     *
+     * @param middle     the community cards used for evaluation
+     * @param candidates the players competing for this pot
+     * @return the winning {@link Player}
+     */
     public Player determinedWinner(Middle middle, ArrayList<Player> candidates) {
         Player winner = candidates.get(0);
 
@@ -329,6 +395,11 @@ public class Game {
         return winner;
     }
 
+    /**
+     * Asks each player if they want to continue after a round ends.
+     * Removes players who quit and starts a new round, or ends the game
+     * if fewer than 2 players remain.
+     */
     public void askForContinuation(){
         stoppedPlaying = new ArrayList<>();
         for (Player p:players){
@@ -348,12 +419,20 @@ public class Game {
         }
     }
 
+    /**
+     * Resets all players' state for a new round.
+     */
     public void resetplayers(){
         for (Player p:players){
             p.resetplayer();
         }
     }
     
+    /**
+     * Sets the given player as the last raiser and clears that flag for all others.
+     *
+     * @param player the player who just raised
+     */
     public void newLastRaiser(Player player){
       for (Player p:players){
         p.isLastRaiser = false;
@@ -361,12 +440,24 @@ public class Game {
       player.isLastRaiser = true;
     }
     
+    /**
+     * Resets the checked state for all players.
+     */
     public void noOneHasChecked(){
         for (Player p:players){
             p.hasChecked = false;
         }
     }
     
+    /**
+     * Prompts the user for an integer input within a given range.
+     * Repeats until a valid value is entered or the dialog is cancelled.
+     *
+     * @param message the prompt shown to the user
+     * @param min     the minimum accepted value
+     * @param max     the maximum accepted value
+     * @return the entered integer, or {@code null} if the user cancelled
+     */
     public Integer askForValidInt(String message, int min, int max) {
         while (true) {
             String value = JOptionPane.showInputDialog(null, message);
@@ -385,6 +476,13 @@ public class Game {
         }
     }
 
+    /**
+     * Creates side pots based on each player's total contribution to the pot.
+     * Used when one or more players are all-in with different amounts.
+     *
+     * @return a list of {@link SidePot} objects, each with an amount and eligible
+     *         players
+     */
     public ArrayList<SidePot> createSidePots() {
 
     ArrayList<SidePot> pots = new ArrayList<>();

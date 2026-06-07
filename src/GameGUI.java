@@ -4,6 +4,16 @@ import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * The graphical user interface for the game.
+ * <p>
+ * Originally generated with AI assistance (ChatGPT and Claude) and
+ * heavily reworked by Nouri Ayadhi.
+ * </p>
+ *
+ * @author Nouri Ayadhi
+ * @version 1.0
+ */
 public class GameGUI extends JFrame {
 
     private final Game game;
@@ -32,6 +42,11 @@ public class GameGUI extends JFrame {
     private final JButton raiseButton = new JButton("Raise");
     private final JButton continueButton = new JButton("Continue");
 
+    /**
+     * Creates and displays the game window.
+     *
+     * @param game the game instance this GUI is connected to
+     */
     GameGUI(Game game) {
         super("Poker");
         this.game = game;
@@ -47,6 +62,9 @@ public class GameGUI extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Builds and arranges all UI components in the main window.
+     */
     private void buildInterface() {
 
         JPanel root = new JPanel(new BorderLayout(15, 15));
@@ -116,6 +134,11 @@ public class GameGUI extends JFrame {
         root.add(actionPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Creates the right-side info panel showing pot size and bet info.
+     *
+     * @return the configured info panel
+     */
     private JPanel createInfoPanel() {
 
         JPanel panel = new JPanel();
@@ -139,18 +162,31 @@ public class GameGUI extends JFrame {
         return panel;
     }
 
+    /**
+     * Applies a consistent style to an info label.
+     *
+     * @param label the label to style
+     */
     private void styleInfoLabel(JLabel label) {
         label.setFont(new Font("SansSerif", Font.BOLD, 18));
         label.setForeground(Color.WHITE);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
+    /**
+     * Applies a consistent style to a button.
+     *
+     * @param button the button to configure
+     */
     private void configureButton(JButton button) {
         button.setFocusable(false);
         button.setFont(new Font("SansSerif", Font.BOLD, 16));
         button.setPreferredSize(new Dimension(160, 45));
     }
 
+    /**
+     * Registers listeners for all buttons.
+     */
     private void registerListeners() {
 
         foldButton.addActionListener(e -> submitMove(new PlayerMove(PlayerAction.FOLD, 0)));
@@ -173,44 +209,44 @@ public class GameGUI extends JFrame {
         continueButton.addActionListener(e -> continueGame());
     }
 
+    /**
+     * Returns a label displaying the image of the given card.
+     *
+     * @param card the card to display
+     * @return a {@link JLabel} with the card image 
+     */
     public JLabel getCardLabel(Card card) {
 
         URL imageUrl = getClass().getResource("/cards/" + card.toString() + ".png");
 
-        if (imageUrl == null) {
-            JLabel fallback = new JLabel(card.toString(), SwingConstants.CENTER);
-            fallback.setPreferredSize(new Dimension(110, 150));
-            fallback.setOpaque(true);
-            fallback.setBackground(Color.WHITE);
-            fallback.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            return fallback;
-        }
-
         ImageIcon icon = new ImageIcon(imageUrl);
         Image scaled = icon.getImage().getScaledInstance(110, 150, Image.SCALE_SMOOTH);
 
         return new JLabel(new ImageIcon(scaled));
     }
 
+    /**
+     * Returns a label displaying the card back image.
+     *
+     * @return a {@link JLabel} with the card back image 
+     */
     private JLabel getBackCardLabel() {
 
         URL imageUrl = getClass().getResource("/cards/BACK.png");
 
-        if (imageUrl == null) {
-            JLabel fallback = new JLabel("CARD", SwingConstants.CENTER);
-            fallback.setPreferredSize(new Dimension(110, 150));
-            fallback.setOpaque(true);
-            fallback.setBackground(Color.LIGHT_GRAY);
-            fallback.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            return fallback;
-        }
-
         ImageIcon icon = new ImageIcon(imageUrl);
         Image scaled = icon.getImage().getScaledInstance(110, 150, Image.SCALE_SMOOTH);
 
         return new JLabel(new ImageIcon(scaled));
     }
 
+    /**
+     * Updates the community cards panel to show the given number of revealed cards.
+     * Unrevealed cards are shown face-down.
+     *
+     * @param middle         the middle object containing the community cards
+     * @param uncoveredCards the number of cards to reveal
+     */
     public void updateMiddleCards(Middle middle, int uncoveredCards) {
 
         SwingUtilities.invokeLater(() -> {
@@ -233,6 +269,11 @@ public class GameGUI extends JFrame {
         });
     }
 
+    /**
+     * Updates the stage label based on how many community cards are revealed.
+     *
+     * @param uncoveredCards the number of revealed cards
+     */
     private void updateStageLabel(int uncoveredCards) {
 
         switch (uncoveredCards) {
@@ -244,6 +285,11 @@ public class GameGUI extends JFrame {
         }
     }
 
+    /**
+     * Updates the active player's card display.
+     *
+     * @param player the player whose cards should be shown
+     */
     public void updateActivePlayerCards(Player player) {
 
         SwingUtilities.invokeLater(() -> {
@@ -259,11 +305,22 @@ public class GameGUI extends JFrame {
         });
     }
 
+    /**
+     * Updates the label showing whose turn it is.
+     *
+     * @param player the active player
+     */
     public void updatePlayerLabel(Player player) {
 
         SwingUtilities.invokeLater(() -> playerLabel.setText(player.name + "'s Turn"));
     }
 
+    /**
+     * Blocks the game thread until the active player selects a move.
+     * Enables the action buttons while waiting.
+     *
+     * @return the {@link PlayerMove} chosen by the player
+     */
     public synchronized PlayerMove waitForMove() {
 
         selectedMove = null;
@@ -283,6 +340,9 @@ public class GameGUI extends JFrame {
         return selectedMove;
     }
 
+    /**
+     * Blocks the game thread until the continue button is pressed.
+     */
     public synchronized void waitForContinue() {
 
         continuePressed = false;
@@ -296,18 +356,32 @@ public class GameGUI extends JFrame {
         }
     }
 
+    /**
+     * Stores the selected move and notifies the waiting game thread.
+     *
+     * @param move the move to submit
+     */
     private synchronized void submitMove(PlayerMove move) {
 
         selectedMove = move;
         notifyAll();
     }
 
+    /**
+     * Signals that the continue button was pressed and notifies the waiting game
+     * thread.
+     */
     private synchronized void continueGame() {
 
         continuePressed = true;
         notifyAll();
     }
 
+    /**
+     * Enables or disables the action buttons (Fold, Call, Raise).
+     *
+     * @param enabled {@code true} to enable, {@code false} to disable
+     */
     private void setActionButtonsEnabled(boolean enabled) {
 
         SwingUtilities.invokeLater(() -> {
@@ -317,6 +391,12 @@ public class GameGUI extends JFrame {
         });
     }
 
+    /**
+     * Updates the info panel with the current pot, highest bet, and active player's
+     * bet.
+     *
+     * @param player the currently active player
+     */
     public void updateInfo(Player player) {
 
         SwingUtilities.invokeLater(() -> {
@@ -338,6 +418,11 @@ public class GameGUI extends JFrame {
         });
     }
 
+    /**
+     * Creates the left-side panel listing all players and their balances.
+     *
+     * @return the configured players panel
+     */
     private JPanel createPlayersPanel() {
 
         playersPanel.setPreferredSize(new Dimension(250, 0));
@@ -361,6 +446,10 @@ public class GameGUI extends JFrame {
         return playersPanel;
     }
     
+    /**
+     * Refreshes the players panel with current names, balances, and the active
+     * player indicator.
+     */
     public void updatePlayersPanel() {
 
         StringBuilder sb = new StringBuilder();
@@ -381,6 +470,16 @@ public class GameGUI extends JFrame {
         playersArea.setText(sb.toString());
     }
 
+    /**
+     * Displays the showdown screen with all remaining players' hands.
+     * Before reveal, player cards are shown face-down. After reveal, hand types and
+     * winners are shown.
+     *
+     * @param players the players still in the round
+     * @param winners the players who won a pot (highlighted with a yellow border)
+     * @param reveal  {@code true} to show cards and hand types, {@code false} to
+     *                keep them hidden
+     */
     public void showShowdown(ArrayList<Player> players, ArrayList<Player> winners, boolean reveal) {
 
         SwingUtilities.invokeLater(() -> {
@@ -464,6 +563,9 @@ public class GameGUI extends JFrame {
     });
     }
     
+    /**
+     * Restores the normal player view after a showdown.
+     */
     public void showPlayerView() {
 
         SwingUtilities.invokeLater(() -> {
@@ -489,6 +591,10 @@ public class GameGUI extends JFrame {
         });
     }
 
+    /**
+     * Switches the UI to showdown mode by hiding action buttons and showing the
+     * continue button.
+     */
     public void enterShowdownMode() {
 
         foldButton.setVisible(false);
@@ -501,6 +607,10 @@ public class GameGUI extends JFrame {
         repaint();
     }
 
+    /**
+     * Switches the UI back to normal mode by showing action buttons and hiding the
+     * continue button.
+     */
     public void exitShowdownMode() {
 
         foldButton.setVisible(true);
@@ -513,6 +623,11 @@ public class GameGUI extends JFrame {
         repaint();
     }
 
+    /**
+     * Sets the text on the continue button.
+     *
+     * @param text the new button label
+     */
     public void setContinueButtonText(String text) {
         continueButton.setText(text);
     }

@@ -1,52 +1,89 @@
 import java.util.ArrayList;
 import java.util.Collections;
-
 import javax.swing.JOptionPane;
 
+/**
+ * Represents a poker player with a hand, balance, and betting state.
+ * Also handles hand evaluation to find the best possible 5-card hand
+ * from the player's 2 cards and the 5 community cards.
+ *
+ * @author Nouri Ayadhi
+ * @version 1.0
+ */
 public class Player {
-
+   /** The best 5-card hand found during evaluation. */
    ArrayList<Card> bestPossibleHand;
+   /** All 7 available cards (2 player cards + 5 community cards). */
    ArrayList<Card> availableCards;
+   /** A single 5-card combination being evaluated. */
    ArrayList<Card> possibleHand;
+   /** The 2  cards dealt to this player. */
    ArrayList<Card> handCards;
 
+    /** Tiebreak values of the current best hand. */
    int[] lastTiebreakValue = { 0, 0, 0, 0, 0 };
+   /** The best poker hand type found so far. */
    PokerHand bestHand;
+   /** The player's current chip balance. */
    int playerBalance = 10000;
+   /** The player's balance at the start of the current round. */
    int playerBalanceAtStartOfRound = playerBalance;
+   /** Total chips won in the current round. */
    int totalRoundWinnings=0;
-   int id;
+   /** Amount bet in the current betting phase. */
    int roundBet;
+   /** Total chips contributed to the pot this round. */
    int totalContribution = 0;
+   /** The players choosen name */
    String name;
+   /** Whether this player is the big blind this round. */
    boolean isBigBlind = false;
+   /** Whether this player was the last to raise. */
    boolean isLastRaiser = false;
+   /** Whether this player has already checked or called. */
    boolean hasChecked = false;
+   /** Whether this player is all-in. */
    boolean isAllIn= false;
 
-
+   /**
+     * Creates a new player with the given name
+     *
+     * @param name the player's display name
+     */
    Player(String name, int id) {
       this.name = name;
-      this.id = id;
       handCards = new ArrayList<Card>();
       this.roundBet = 0;
    }
 
+   /**
+    * Draws 2 cards from the deck into the player's hand.
+    *
+    * @param deck the deck to draw from
+    */
    public void takeCards(Deck deck) { // adds 2 cards from the deck to the players hand and removes them from the deck
       for (int i = 0; i < 2; i++) {
          handCards.add(deck.getCards().remove(0));
       }
    }
 
-   public PokerHand evaluate(ArrayList<Card> comunityCards) { // checks what the best pokerhand is that the player can have with his current cards
-      availableCards = new ArrayList<Card>(); // combines the community cards and the cards of the player
+   /**
+    * Finds the best 5-card poker hand from the player's cards and the
+    * community cards by checking all 21 possible combinations.
+    * Each combination is sorted highest to lowest before evaluation.
+    *
+    * @param comunityCards the 5 community cards on the table
+    * @return the best {@link PokerHand} this player can make
+    */
+   public PokerHand evaluate(ArrayList<Card> comunityCards) { 
+      availableCards = new ArrayList<Card>(); 
       availableCards.addAll(comunityCards);
       availableCards.addAll(handCards);
       bestHand = PokerHand.HIGHCARD;
       bestPossibleHand = new ArrayList<Card>();
       lastTiebreakValue = new int[] { 0, 0, 0, 0, 0 };
 
-      for (int i = 0; i < 7; i++) { // removes every combination of 2 cards from the 7 possible cards to get every combination of 5 cards (21)
+      for (int i = 0; i < 7; i++) { 
          for (int j = i + 1; j < 7; j++) {
 
             possibleHand = new ArrayList<Card>();
@@ -54,31 +91,37 @@ public class Player {
             possibleHand.remove(j);
             possibleHand.remove(i);
 
-            ArrayList<Card> workingHand = new ArrayList<Card>(possibleHand); // creates a temporary Arraylist to work with, so that possibleHand stays intact
-            Collections.sort(workingHand, (a, b) -> b.getValue() - a.getValue()); // sorts the Hand from highest card to lowest. needed for isStraight and for getTiebreakValuesForHand
+            ArrayList<Card> workingHand = new ArrayList<Card>(possibleHand); 
+            Collections.sort(workingHand, (a, b) -> b.getValue() - a.getValue()); 
 
-            PokerHand currentHandType = determineHandType(workingHand); // checks the Handtype of the current hand
+            PokerHand currentHandType = determineHandType(workingHand); 
 
-            int[] currentTiebreakeValues = getTiebreakValuesForHand(currentHandType, workingHand); // gets the tiebreake Values of the current hand
+            int[] currentTiebreakeValues = getTiebreakValuesForHand(currentHandType, workingHand); 
 
-            if (currentHandType.getHandValue() > bestHand.getHandValue()
-                  || (currentHandType.getHandValue() == bestHand.getHandValue()
-                        && winsTiebreak(lastTiebreakValue, currentTiebreakeValues))) { // if the current hand is better than the previous best it becomes the new best
+            if (currentHandType.getHandValue() > bestHand.getHandValue()|| (currentHandType.getHandValue() == bestHand.getHandValue()&& winsTiebreak(lastTiebreakValue, currentTiebreakeValues))) { 
                bestHand = currentHandType;
                bestPossibleHand = new ArrayList<Card>(workingHand);
                lastTiebreakValue = currentTiebreakeValues;
             }
          }
       }
-      return bestHand; // after all combinations are checked, the best combination is returned
+      return bestHand; 
    }
 
-   public boolean winsTiebreak(int[] lastValue, int[] potentialNewBest) { // checks if the new value beats the old
+   /**
+    * Checks if a new set of tiebreak values beats the current best,
+    * by comparing each index one by one.
+    *
+    * @param lastValue        the current best tiebreak values
+    * @param potentialNewBest the new tiebreak values to compare
+    * @return {@code true} if the new values win the tiebreak
+    */
+   public boolean winsTiebreak(int[] lastValue, int[] potentialNewBest) {
       if (potentialNewBest == null)
          return false;
       if (lastValue == null)
          return true;
-      for (int i = 0; i < 5; i++) { // compares the integers at every index of the arrays
+      for (int i = 0; i < 5; i++) { 
          if (potentialNewBest[i] > lastValue[i])
             return true;
          if (potentialNewBest[i] < lastValue[i])
@@ -86,13 +129,23 @@ public class Player {
       }
       return false;
    }
-
-   public int[] getTiebreakValues() { // returns the tiebreakevalue of the best hand of the player, needed for determine winner in game
+   
+   /**
+    * Returns the tiebreak values of the player's current best hand.
+    *
+    * @return an array of tiebreak values
+    */
+   public int[] getTiebreakValues() { 
       return lastTiebreakValue;
    }
-
-   private PokerHand determineHandType(ArrayList<Card> workingHand) { // determines what kind of pokerhand the current hand is
-
+   
+   /**
+    * Determines the type of poker hand for a given 5-card hand.
+    *
+    * @param workingHand the 5-card hand to evaluate
+    * @return the {@link PokerHand} type of the given hand
+    */
+   private PokerHand determineHandType(ArrayList<Card> workingHand) { 
       boolean flush = isFlush(workingHand);
       boolean straight = isStraight(workingHand);
 
@@ -115,20 +168,30 @@ public class Player {
       return PokerHand.HIGHCARD;
    }
 
-   private int[] getTiebreakValuesForHand(PokerHand hand, ArrayList<Card> workingHand) { // gives out an int[] with all the needed Tiebrake values. a Hand needs less that 5values, the rest is set to 0
+   /**
+    * Returns the tiebreak values for a given hand type.
+    * Unused slots in the Array are set to 0.
+    * Note: for a straight or straight flush, the Ace can count as 1
+    * in a straight (A-2-3-4-5), in which case 5 is used as the tiebreak value.
+    *
+    * @param hand        the type of the hand
+    * @param workingHand the 5-card hand, sorted highest to lowest
+    * @return an array of up to 5 tiebreak values
+    */
+   private int[] getTiebreakValuesForHand(PokerHand hand, ArrayList<Card> workingHand) { 
       int[] tiebreaker = new int[5];
       if (hand == PokerHand.STRAIGHT_FLUSH || hand == PokerHand.STRAIGHT) {
-         if (workingHand.get(0).getValue() == 14 && workingHand.get(1).getValue() == 5) { // special case where the aceis a 1
+         if (workingHand.get(0).getValue() == 14 && workingHand.get(1).getValue() == 5) { 
             tiebreaker[0] = 5;
          } else {
-            tiebreaker[0] = workingHand.get(0).getValue(); // sets the first index of the array to the highest card inthe straight
+            tiebreaker[0] = workingHand.get(0).getValue(); 
          }
       }
 
       else if (hand == PokerHand.FOUR_OF_A_KIND) {
-         int quad = getRankOfN(workingHand, 4); // sets the value of the cardvalue that exist 4 times to an integer
+         int quad = getRankOfN(workingHand, 4); 
          int remainingCard = 0;
-         for (Card card : workingHand) { // goes through all cards of the hand
+         for (Card card : workingHand) { 
             if (card.getValue() != quad)
                remainingCard = card.getValue();
          }
@@ -137,17 +200,17 @@ public class Player {
       }
 
       else if (hand == PokerHand.FULL_HOUSE) {
-         int triple = getRankOfN(workingHand, 3); // sets the value of the cardvalue that exist 3 times to an integer
+         int triple = getRankOfN(workingHand, 3); 
          int pair = 0;
          for (Card card : workingHand) {
-            if (card.getValue() != triple) // cards that are not part of the triple must be part of the double
+            if (card.getValue() != triple) 
                pair = card.getValue();
          }
          tiebreaker[0] = triple;
          tiebreaker[1] = pair;
       }
 
-      else if (hand == PokerHand.FLUSH || hand == PokerHand.HIGHCARD) { // the tiebreaker values in case of flush andhighcard are the same : all cards are needed
+      else if (hand == PokerHand.FLUSH || hand == PokerHand.HIGHCARD) {
          for (int i = 0; i < 5; i++)
             tiebreaker[i] = workingHand.get(i).getValue();
       }
@@ -157,8 +220,9 @@ public class Player {
          tiebreaker[0] = triple;
          int index = 1;
          for (Card card : workingHand) {
-            if (card.getValue() != triple) // values of cards that are not part of the triple get added to the array (first the higher card than the lower)
+            if (card.getValue() != triple) {
                tiebreaker[index++] = card.getValue();
+           }
          }
       }
 
@@ -167,7 +231,7 @@ public class Player {
          int lowPair = -1;
          int remainingCard = -1;
          for (int i = 0; i < 4; i++) {
-            if (workingHand.get(i).getValue() == workingHand.get(i + 1).getValue()) { // highpair is set to the firstpair that is encountered,lowpair is set to the second
+            if (workingHand.get(i).getValue() == workingHand.get(i + 1).getValue()) { 
                if (highPair == -1)
                   highPair = workingHand.get(i).getValue();
                else
@@ -185,7 +249,7 @@ public class Player {
       }
 
       else if (hand == PokerHand.ONE_PAIR) {
-         int pair = getRankOfN(workingHand, 2); // same logic as three of a kind
+         int pair = getRankOfN(workingHand, 2);
          tiebreaker[0] = pair;
          int index = 1;
          for (Card card : workingHand) {
@@ -194,10 +258,16 @@ public class Player {
          }
       }
 
-      return tiebreaker; // returns the array
+      return tiebreaker;
    }
 
-   private boolean isFlush(ArrayList<Card> workingHand) { // if any card has a different CardType than the rest it returns false, otherwise true
+   /**
+    * Checks if all 5 cards in the hand have the same suit.
+    *
+    * @param workingHand the 5-card hand to check
+    * @return {@code true} if all cards have the same suit
+    */
+   private boolean isFlush(ArrayList<Card> workingHand) { 
       CardType type = workingHand.get(0).type;
       for (Card card : workingHand) {
          if (card.type != type)
@@ -206,20 +276,34 @@ public class Player {
       return true;
    }
 
+   /**
+    * Checks if the 5 cards form a straight.
+    * Also handles the special case where the Ace counts as 1 (A-2-3-4-5).
+    *
+    * @param workingHand 
+    * @return {@code true} if the hand is a straight
+    */
    private boolean isStraight(ArrayList<Card> workingHand) {
       if (workingHand.get(0).getValue() == 14 && workingHand.get(1).getValue() == 5
             && workingHand.get(2).getValue() == 4 && workingHand.get(3).getValue() == 3
-            && workingHand.get(4).getValue() == 2) { // special case where the ace is a 1
+            && workingHand.get(4).getValue() == 2) { 
          return true;
       }
-      for (int i = 0; i < 4; i++) { // if any card is not one smaller than the previous, retun false
+      for (int i = 0; i < 4; i++) { 
          if (workingHand.get(i).getValue() - workingHand.get(i + 1).getValue() != 1)
             return false;
       }
       return true;
    }
 
-   private boolean isFullHouse(ArrayList<Card> workingHand) { // if the hand contains a triple and a pair that is not part of the triple it returns true
+   /**
+    * Checks if the hand contains a three-of-a-kind and a pair of a different
+    * value.
+    *
+    * @param workingHand the 5-card hand to check
+    * @return {@code true} if the hand is a full house
+    */
+   private boolean isFullHouse(ArrayList<Card> workingHand) {
       int triple = getRankOfN(workingHand, 3);
       if (triple == -1)
          return false;
@@ -230,7 +314,13 @@ public class Player {
       return false;
    }
 
-   private boolean isTwoPair(ArrayList<Card> workingHand) { // checks if there are 2 pairs by comparing a card at an index i and the next card
+   /**
+    * Checks if the hand contains exactly two pairs.
+    *
+    * @param workingHand the 5-card hand, sorted highest to lowest
+    * @return {@code true} if the hand contains two pairs
+    */
+   private boolean isTwoPair(ArrayList<Card> workingHand) { 
       int NumberOFpairs = 0;
       for (int i = 0; i < 4; i++) {
          if (workingHand.get(i).getValue() == workingHand.get(i + 1).getValue()) {
@@ -240,19 +330,44 @@ public class Player {
       }
       return NumberOFpairs == 2;
    }
-
-   private boolean hasNOfAKind(ArrayList<Card> workingHand, int n) { // needed for game
+   
+   /**
+    * Checks if the hand contains at least one group of {@code n} cards with the
+    * same value.
+    *
+    * @param workingHand the 5-card hand to check
+    * @param n           the required count
+    * @return {@code true} if such a group exists
+    */
+   private boolean hasNOfAKind(ArrayList<Card> workingHand, int n) { 
       return getRankOfN(workingHand, n) != -1;
    }
-
-   private int getRankOfN(ArrayList<Card> workingHand, int n) { // checks which CardValue exist n times in the hand
+   
+   /**
+    * Returns the card value that appears exactly {@code n} times in the hand,
+    * or {@code -1} if no such value exists.
+    *
+    * @param workingHand the 5-card hand to check
+    * @param n           the required count
+    * @return the matching card value, or {@code -1} if not found
+    */
+   private int getRankOfN(ArrayList<Card> workingHand, int n) {
       for (Card card : workingHand) {
          if (hasRankCount(workingHand, card.getValue(), n))
             return card.getValue();
       }
       return -1;
    }
-
+   
+   /**
+    * Checks if a specific card value appears exactly {@code target} times in the
+    * hand.
+    *
+    * @param workingHand the 5-card hand to check
+    * @param value       the card value to count
+    * @param target      the expected count
+    * @return {@code true} if the value appears exactly {@code target} times
+    */
    private boolean hasRankCount(ArrayList<Card> workingHand, int value, int target) { // checks if the CardValue exist as often as needed
       int count = 0;
       for (Card card : workingHand) {
@@ -261,7 +376,10 @@ public class Player {
       }
       return count == target;
    }
-
+   
+   /**
+    * Resets the player's state for a new round.
+    */
    public void resetplayer(){
       if (bestPossibleHand != null){
          bestPossibleHand.clear();
@@ -282,6 +400,12 @@ public class Player {
 
    }
    
+   /**
+    * Asks the player if they want to continue playing.
+    * Returns {@code true} if the player has run out of money or chooses to stop.
+    *
+    * @return {@code true} if the player has stopped playing
+    */
    public boolean hasStoppedPlaying(){
       if (playerBalance < 1){
          JOptionPane.showMessageDialog(null, this.name+" ,you've ran out of money!");

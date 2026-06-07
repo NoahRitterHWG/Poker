@@ -1,3 +1,11 @@
+/**
+ * All possible card values in a standard deck.
+ * Each value has a number used to compare cards during the game.
+ * The Ace has the highest value (12), but can also count as 1 in a straight.
+ *
+ * @author Nouri Ayadhi
+ * @version 1.0
+ */
 public enum CardValues {
     A(12),
     TWO(0), 
@@ -18,7 +26,12 @@ public enum CardValues {
     CardValues(int CardValue){
         this.CardValue = CardValue;
     }
-    
+   
+    /**
+     * Returns the value of this card.
+     *
+     * @return the card's value
+     */ 
     public int getCardValue(){
         return this.CardValue;
     }
