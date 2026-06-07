@@ -1,6 +1,10 @@
 /**
  * Entry point of the Texas Hold'em poker game.
  *
+ * <p>
+ * Requires Java 8 or later.
+ * </p>
+ *
  * @author Nouri Ayadhi
  * @version 1.0
  */
