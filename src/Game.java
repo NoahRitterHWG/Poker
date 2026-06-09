@@ -349,7 +349,8 @@ public class Game {
         System.out.println("Waiting for move from " + player.name);//test
 
         activePlayerIndex = players.indexOf(player);
-
+        
+        gui.showHandoffScreen(player);
         gui.updatePlayerLabel(player);
         gui.updateActivePlayerCards(player);
         gui.updateInfo(player);

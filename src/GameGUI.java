@@ -23,6 +23,7 @@ public class GameGUI extends JFrame {
 
     private PlayerMove selectedMove;
     private boolean continuePressed;
+    
 
     private final JPanel activePlayerCardsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
     private final JPanel communityCardsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
@@ -632,5 +633,64 @@ public class GameGUI extends JFrame {
         continueButton.setText(text);
     }
 
+    public void showHandoffScreen(Player player) {
+
+        SwingUtilities.invokeLater(() -> {
+
+            foldButton.setVisible(false);
+            callButton.setVisible(false);
+            raiseButton.setVisible(false);
+
+            centerPanel.removeAll();
+
+            JLabel title = new JLabel("NEXT PLAYER");
+            title.setFont(new Font("SansSerif", Font.BOLD, 32));
+            title.setForeground(Color.WHITE);
+            title.setAlignmentX(Component.CENTER_ALIGNMENT);
+            centerPanel.add(title);
+
+            centerPanel.add(Box.createVerticalStrut(20));
+
+            JPanel playerPanel = new JPanel();
+            playerPanel.setOpaque(false);
+            playerPanel.setLayout(new BoxLayout(playerPanel, BoxLayout.Y_AXIS));
+
+            JLabel nameLabel = new JLabel(player.name);
+            nameLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+            nameLabel.setForeground(Color.WHITE);
+            nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+            JPanel cardsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            cardsPanel.setOpaque(false);
+            cardsPanel.add(getBackCardLabel());
+            cardsPanel.add(getBackCardLabel());
+
+            playerPanel.add(nameLabel);
+            playerPanel.add(cardsPanel);
+
+            centerPanel.add(playerPanel);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+
+            setContinueButtonText("Show " + player.name + "'s cards");
+            continueButton.setPreferredSize(new Dimension(320, 45));
+            continueButton.setVisible(true);
+
+        });
+
+        waitForContinue();
+        continueButton.setPreferredSize(new Dimension(160, 45));
+
+        SwingUtilities.invokeLater(() -> {
+            continueButton.setVisible(false);
+            showPlayerView();
+            foldButton.setVisible(true);
+            callButton.setVisible(true);
+            raiseButton.setVisible(true);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+        });
+    }
 }
 
