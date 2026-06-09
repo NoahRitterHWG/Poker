@@ -231,7 +231,7 @@ public class Game {
             }
         }
     }
-
+ 
     /**
      * Runs a single betting phase. Asks each active player for their move
      * in order until all players have acted. Ends the round early if only
@@ -245,17 +245,19 @@ public class Game {
             removeFromRound = new ArrayList<>();
             for(Player p:playersInRound){
                 if(playersInRound.size()-1 <= removeFromRound.size()){
+                    
                     playersInRound.removeAll(removeFromRound);
                     roundEndedEarly = true;
                     Player winner = playersInRound.get(0);
+                    winner.playerBalance += middle.gamePott;
+                    winner.totalRoundWinnings += middle.gamePott;
                     gui.showShowdown(playersInRound, playersInRound, true);
                     gui.enterShowdownMode();
                     gui.setContinueButtonText("Continue");
                     gui.waitForContinue();
                     gui.exitShowdownMode();
                     gui.showPlayerView();
-                    winner.playerBalance += middle.gamePott;
-                    winner.totalRoundWinnings += middle.gamePott;
+                   
                     JOptionPane.showMessageDialog(null, winner.name+ " winns $"+ middle.gamePott);
                     return;
                 }
@@ -356,7 +358,7 @@ public class Game {
         System.out.println("Waiting for move from " + player.name);//test
 
         activePlayerIndex = players.indexOf(player);
-        
+        gui.updatePlayersPanel();
         gui.showHandoffScreen(player);
         gui.updatePlayerLabel(player);
         gui.updateActivePlayerCards(player);
