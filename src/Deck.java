@@ -5,7 +5,7 @@ import java.util.Random;
  * Represents a full deck of 52 playing cards.
  * The deck is built automatically when created and can be shuffled before use.
  *
- * @author Nouri Ayadhi
+ * @author Nouri Ayadhi, Noah Ritter
  * @version 1.0
  */
 public class Deck {

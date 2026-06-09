@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
  * Also handles hand evaluation to find the best possible 5-card hand
  * from the player's 2 cards and the 5 community cards.
  *
- * @author Nouri Ayadhi
+ * @author Nouri Ayadhi, Noah Ritter
  * @version 1.0
  */
 public class Player {

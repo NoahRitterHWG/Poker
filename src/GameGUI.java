@@ -486,8 +486,12 @@ public class GameGUI extends JFrame {
         SwingUtilities.invokeLater(() -> {
 
         centerPanel.removeAll();
-
-        JLabel title =new JLabel("SHOWDOWN");
+        String inputtitel = "SHOWDOWN";
+        if (game.roundEndedEarly){
+            String winnerName = players.get(0).name;
+            inputtitel = winnerName + " winns!";
+        }
+        JLabel title = new JLabel(inputtitel);
 
         title.setFont(new Font("SansSerif",Font.BOLD,32));
 
@@ -526,10 +530,14 @@ public class GameGUI extends JFrame {
 
             JLabel handLabel;
 
-            if (reveal) {
+            if (reveal && !game.roundEndedEarly) {
                 handLabel = new JLabel(p.bestHand.toString());
-            } else {
+            } 
+            else if (!reveal && !game.roundEndedEarly) {
                 handLabel = new JLabel("???");
+            }
+            else {
+                    handLabel = new JLabel("");
             }
 
             handLabel.setForeground(Color.WHITE);
@@ -632,7 +640,11 @@ public class GameGUI extends JFrame {
     public void setContinueButtonText(String text) {
         continueButton.setText(text);
     }
-
+    /**
+     * Switches the UI to a screen hiding the cards of the next player. Only continues after the button is pressed
+     * 
+     * @param player the player that is next to play
+     */
     public void showHandoffScreen(Player player) {
 
         SwingUtilities.invokeLater(() -> {

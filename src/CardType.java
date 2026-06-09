@@ -1,7 +1,7 @@
 /**
  * The four suits of the card deck.
  *
- * @author Nouri Ayadhi
+ * @author Nouri Ayadhi, Noah Ritter
  * @version 1.0
  */
 public enum CardType {

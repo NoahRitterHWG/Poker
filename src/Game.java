@@ -246,10 +246,17 @@ public class Game {
             for(Player p:playersInRound){
                 if(playersInRound.size()-1 <= removeFromRound.size()){
                     playersInRound.removeAll(removeFromRound);
+                    roundEndedEarly = true;
                     Player winner = playersInRound.get(0);
+                    gui.showShowdown(playersInRound, playersInRound, true);
+                    gui.enterShowdownMode();
+                    gui.setContinueButtonText("Continue");
+                    gui.waitForContinue();
+                    gui.exitShowdownMode();
+                    gui.showPlayerView();
                     winner.playerBalance += middle.gamePott;
                     winner.totalRoundWinnings += middle.gamePott;
-                    roundEndedEarly = true;
+                    JOptionPane.showMessageDialog(null, winner.name+ " winns $"+ middle.gamePott);
                     return;
                 }
                 if (!removeFromRound.contains(p)){

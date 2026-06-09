@@ -5,7 +5,7 @@
  * Requires Java 8 or later.
  * </p>
  *
- * @author Nouri Ayadhi
+ * @author Nouri Ayadhi, Noah Ritter
  * @version 1.0
  */
 public class App {
